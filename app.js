@@ -362,6 +362,7 @@ const ListeningMode = {
   render(items) {
     let withChinese = false;
     let rate = 0.9;
+    let repeatMode = "off"; // "off" | "all" | "one"
 
     const nowPlaying = el("div", { className: "now-playing", textContent: "Ready." });
     const card = el("div", { className: "card" });
@@ -375,9 +376,17 @@ const ListeningMode = {
     }
     rateSel.onchange = () => (rate = parseFloat(rateSel.value));
 
+    const repeatSel = el("select", {});
+    for (const [value, label] of [["off", "No repeat"], ["all", "🔁 All"], ["one", "🔂 One"]]) {
+      repeatSel.append(el("option", { value, textContent: label, selected: value === repeatMode }));
+    }
+    // Read live on each loop iteration, so switching mid-playback takes effect.
+    repeatSel.onchange = () => (repeatMode = repeatSel.value);
+
     const toggles = el("div", { className: "toggle-row" }, [
       el("label", {}, [zhToggle, " English + 中文"]),
       el("label", {}, ["Speed ", rateSel]),
+      el("label", {}, ["Repeat ", repeatSel]),
     ]);
 
     const startBtn = el("button", { className: "btn btn-primary", textContent: "▶ Play" });
@@ -393,21 +402,37 @@ const ListeningMode = {
       nowPlaying.textContent = `Playing ${i + 1} / ${items.length}`;
     };
 
+    /** Speak a single item end-to-end. One job: play one card. */
+    const playOne = async (item, i) => {
+      showItem(item, i);
+      await Speech.speak(item.term, "en-US", rate);
+      await Speech.speak(item.example, "en-US", rate);
+      if (withChinese) {
+        await Speech.wait(250);
+        await Speech.speak(item.zhMeaning, "zh-TW", rate);
+      }
+      await Speech.wait(600);
+    };
+
+    /** Decide the next index given the current repeat policy, or null to stop. */
+    const nextIndex = (i) => {
+      if (repeatMode === "one") return i; // stay put
+      const next = i + 1;
+      if (next < items.length) return next; // more items left
+      return repeatMode === "all" ? 0 : null; // wrap around, or stop
+    };
+
     const run = async () => {
       Speech.start();
       startBtn.disabled = true;
       stopBtn.disabled = false;
-      for (let i = 0; i < items.length; i++) {
+      let i = 0;
+      while (!Speech.cancelled) {
+        await playOne(items[i], i);
         if (Speech.cancelled) break;
-        const item = items[i];
-        showItem(item, i);
-        await Speech.speak(item.term, "en-US", rate);
-        await Speech.speak(item.example, "en-US", rate);
-        if (withChinese) {
-          await Speech.wait(250);
-          await Speech.speak(item.zhMeaning, "zh-TW", rate);
-        }
-        await Speech.wait(600);
+        const next = nextIndex(i);
+        if (next === null) break;
+        i = next;
       }
       nowPlaying.textContent = Speech.cancelled ? "Stopped." : "Done ✓";
       startBtn.disabled = false;
