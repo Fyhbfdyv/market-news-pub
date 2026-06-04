@@ -46,8 +46,19 @@ function parseVocab(raw) {
   for (const line of raw.split("\n")) {
     const trimmed = line.trim();
     if (!trimmed) continue;
-    const parts = trimmed.split(";").map((p) => p.trim());
+    let parts = trimmed.split(";").map((p) => p.trim());
     if (parts.length < 2) continue; // not a vocab line
+    
+    // If the line has exactly 3 parts but the 3rd part contains a full-width semicolon
+    // (；), it means the LLM used it to separate the Traditional Chinese translation and 
+    // example sentence instead of a half-width semicolon. Split it to recover all 4 fields.
+    if (parts.length === 3 && parts[2].includes("；")) {
+      const idx = parts[2].indexOf("；");
+      const zhMeaning = parts[2].slice(0, idx).trim();
+      const zhExample = parts[2].slice(idx + 1).trim();
+      parts = [parts[0], parts[1], zhMeaning, zhExample];
+    }
+
     // Some upstream rows arrive as a numbered list ("1. felt inclined to");
     // strip that enumeration so the term is clean for display AND so the quiz
     // can locate it inside the example sentence.
