@@ -48,7 +48,10 @@ function parseVocab(raw) {
     if (!trimmed) continue;
     const parts = trimmed.split(";").map((p) => p.trim());
     if (parts.length < 2) continue; // not a vocab line
-    const term = parts[0];
+    // Some upstream rows arrive as a numbered list ("1. felt inclined to");
+    // strip that enumeration so the term is clean for display AND so the quiz
+    // can locate it inside the example sentence.
+    const term = parts[0].replace(/^\d+\.\s*/, "");
     const example = parts[1] || "";
     const zhMeaning = parts[2] || example || term; // never empty
     const zhExample = parts[3] || "";
@@ -355,6 +358,177 @@ const QuizMode = {
 };
 
 // ---------------------------------------------------------------------------
+// Mode: Fill in the blanks (cloze) — read the sentence, tap the missing word
+// ---------------------------------------------------------------------------
+
+/** Escape a string so it can be embedded literally in a RegExp. */
+function escapeRegExp(text) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/**
+ * Build a case-insensitive RegExp that matches `term` in a sentence even when
+ * its words are inflected ("double down on" should match "doubling down on").
+ *
+ * We match WORD BY WORD so inflection on any word is tolerated, not just the
+ * last one. Per word we account for the common English stem changes:
+ *   - silent-'e' drop:  double → doubl(e?) → "doubling", "doubled"
+ *   - 'y' → 'ies'/'ied': study → stud(y?)  → "studies", "studying"
+ *   - plain suffixes:    curb  → curb\w*    → "curbs", "curbing"
+ * Short function words (≤2 chars like "on"/"at") are matched exactly, since they
+ * never inflect and a loose `\w*` there would over-match unrelated words.
+ */
+function termPattern(term) {
+  const word = (w) => {
+    if (w.length <= 2) return escapeRegExp(w);
+    if (/e$/i.test(w)) return `${escapeRegExp(w.slice(0, -1))}e?\\w*`;
+    if (/y$/i.test(w)) return `${escapeRegExp(w.slice(0, -1))}y?\\w*`;
+    return `${escapeRegExp(w)}\\w*`;
+  };
+  const words = term.trim().split(/\s+/).map(word);
+  return new RegExp(`\\b${words.join("\\s+")}`, "i");
+}
+
+/**
+ * Turn an example sentence into a "cloze" — the sentence with `term` hidden
+ * behind a blank the learner must fill.
+ *
+ * Returns a small object with the rendered `node` and a `fill(word, ok)` method
+ * that drops the answer into the blank afterwards (coloured by correctness).
+ * We expose `fill` instead of re-rendering so the caller never has to know how
+ * the blank is built — that's encapsulation.
+ *
+ * Upstream examples USUALLY contain the term, but often in an inflected form
+ * ("clinched" for "clinch", "doubling down on" for "double down on"). We match
+ * via `termPattern`, which tolerates that, and blank out the WHOLE matched span
+ * so the gap lands in the right place. If it still fails (the example omits the
+ * term entirely), we fall back to showing the sentence as context with a
+ * trailing blank, so the question still works.
+ */
+function buildCloze(example, term) {
+  const blank = el("span", { className: "blank", textContent: "______" });
+  const node = el("div", { className: "cloze" });
+
+  const match = example.match(termPattern(term));
+  if (match) {
+    node.append(
+      example.slice(0, match.index),
+      blank,
+      example.slice(match.index + match[0].length)
+    );
+  } else {
+    node.append(example ? `${example} ` : "", blank);
+  }
+
+  const fill = (word, ok) => {
+    blank.textContent = word;
+    blank.classList.add(ok ? "blank-correct" : "blank-wrong");
+  };
+  return { node, fill };
+}
+
+const FillBlankMode = {
+  render(items) {
+    if (items.length < 2) {
+      stage.append(el("p", { className: "status", textContent: "Need at least 2 items to play." }));
+      return;
+    }
+
+    const deck = shuffle(items);
+    let index = 0;
+    let correctCount = 0;
+
+    const progress = el("div", { className: "progress" });
+    const card = el("div", { className: "card" });
+    const bank = el("div", { className: "word-bank" });
+    const footer = el("div", { className: "actions" });
+    const next = el("button", { className: "btn btn-primary", textContent: "Next →", disabled: true });
+
+    const drawQuestion = () => {
+      const item = deck[index];
+
+      // Word bank: the correct term + up to 3 distractor terms from other items.
+      const distractors = shuffle(items.filter((i) => i.term !== item.term))
+        .slice(0, 3)
+        .map((i) => i.term);
+      const choices = shuffle([item.term, ...distractors]);
+
+      const cloze = buildCloze(item.example, item.term);
+      card.replaceChildren(
+        el("div", { className: "hint", textContent: "Fill in the missing word" }),
+        cloze.node,
+        el("div", { className: "zh-meaning", textContent: item.zhMeaning })
+      );
+
+      bank.replaceChildren();
+      next.disabled = true;
+
+      for (const choice of choices) {
+        const btn = el("button", { className: "option", textContent: choice });
+        btn.onclick = () => {
+          // Lock the bank once answered, then reveal the answer in the blank.
+          [...bank.children].forEach((c) => (c.disabled = true));
+          const isCorrect = choice === item.term;
+          cloze.fill(item.term, isCorrect);
+          if (isCorrect) {
+            btn.classList.add("correct");
+            correctCount++;
+            Mistakes.remove(item.term); // got it right → drop from review deck
+          } else {
+            btn.classList.add("wrong");
+            Mistakes.add(item); // remember this miss for later review
+            [...bank.children]
+              .find((c) => c.textContent === item.term)
+              ?.classList.add("correct");
+          }
+          next.disabled = false;
+        };
+        bank.append(btn);
+      }
+
+      progress.replaceChildren(
+        el("span", { textContent: `${index + 1} / ${deck.length}` }),
+        el("span", { className: "pill", textContent: `✓ ${correctCount}` })
+      );
+    };
+
+    const drawResult = () => {
+      const pct = Math.round((correctCount / deck.length) * 100);
+      const missed = Mistakes.load().length;
+      stage.replaceChildren(
+        el("div", { className: "card" }, [
+          el("div", { className: "term", textContent: `${pct}%` }),
+          el("div", { className: "example", textContent: `${correctCount} / ${deck.length} correct` }),
+          el("div", { className: "hint", textContent: `${missed} item(s) saved for review` }),
+        ]),
+        el("div", { className: "actions" }, [
+          (() => {
+            const again = el("button", { className: "btn btn-primary", textContent: "Try again" });
+            again.onclick = () => router.setMode("fill");
+            return again;
+          })(),
+          (() => {
+            const review = el("button", { className: "btn", textContent: "Review mistakes" });
+            review.onclick = () => router.setDeck(REVIEW_DECK_ID);
+            return review;
+          })(),
+        ])
+      );
+    };
+
+    next.onclick = () => {
+      index++;
+      if (index >= deck.length) drawResult();
+      else drawQuestion();
+    };
+
+    footer.append(next);
+    stage.append(progress, card, bank, footer);
+    drawQuestion();
+  },
+};
+
+// ---------------------------------------------------------------------------
 // Mode: Listening cycle (auto-play, EN-only or EN+ZH)
 // ---------------------------------------------------------------------------
 
@@ -530,6 +704,7 @@ const REVIEW_DECK_ID = "__review__";
 const MODES = {
   flashcard: FlashcardMode,
   quiz: QuizMode,
+  fill: FillBlankMode,
   listening: ListeningMode,
   shadowing: ShadowingMode,
 };

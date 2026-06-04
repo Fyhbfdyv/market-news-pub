@@ -280,6 +280,46 @@ main#stage {
   cursor: default;
 }
 
+/* ---- Fill in the blanks (cloze) ---- */
+.cloze {
+  font-size: 1.15rem;
+  line-height: 1.8;
+}
+
+.blank {
+  font-weight: 700;
+  color: var(--accent);
+  border-bottom: 2px solid var(--surface-2);
+  padding: 0 6px;
+  margin: 0 2px;
+}
+
+.blank-correct {
+  color: var(--good);
+  border-color: var(--good);
+}
+
+.blank-wrong {
+  color: var(--bad);
+  border-color: var(--bad);
+}
+
+/* The word bank reuses .option chips, but lays them out as a wrapping row
+   (vs. the quiz's vertical .options column) since the choices are short words. */
+.word-bank {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  width: 100%;
+}
+
+.word-bank .option {
+  flex: 1;
+  min-width: 120px;
+  text-align: center;
+}
+
 /* ---- Progress + meta ---- */
 .progress {
   width: 100%;
