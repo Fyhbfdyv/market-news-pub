@@ -388,6 +388,10 @@ function escapeRegExp(text) {
  *   - plain suffixes:    curb  → curb\w*    → "curbs", "curbing"
  * Short function words (≤2 chars like "on"/"at") are matched exactly, since they
  * never inflect and a loose `\w*` there would over-match unrelated words.
+ *
+ * Between the term's words we allow up to 2 INSERTED words, so separable phrases
+ * still match ("give back gains" → "giving back those gains"). The cap keeps the
+ * blank from ballooning across the sentence if the words happen to recur.
  */
 function termPattern(term) {
   const word = (w) => {
@@ -396,8 +400,9 @@ function termPattern(term) {
     if (/y$/i.test(w)) return `${escapeRegExp(w.slice(0, -1))}y?\\w*`;
     return `${escapeRegExp(w)}\\w*`;
   };
+  const gap = "\\s+(?:\\w+\\s+){0,2}"; // separator: a space, then ≤2 inserted words
   const words = term.trim().split(/\s+/).map(word);
-  return new RegExp(`\\b${words.join("\\s+")}`, "i");
+  return new RegExp(`\\b${words.join(gap)}`, "i");
 }
 
 /**
