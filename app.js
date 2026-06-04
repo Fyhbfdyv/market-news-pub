@@ -233,9 +233,12 @@ const FlashcardMode = {
       flipped = false;
       draw();
     };
-    speak.onclick = () => {
+    speak.onclick = async () => {
+      const item = items[index];
       Speech.start();
-      Speech.speak(items[index].example || items[index].term, "en-US");
+      // Say the vocab word first, then read its example sentence.
+      await Speech.speak(item.term, "en-US");
+      if (item.example) await Speech.speak(item.example, "en-US");
     };
 
     actions.append(prev, speak, next);
@@ -584,11 +587,30 @@ function populateDeckSelect(manifest) {
   select.onchange = () => router.setDeck(select.value);
 }
 
+/**
+ * Step through the deck dropdown by one option. delta -1 = newer, +1 = older.
+ *
+ * We drive the <select> directly (not the manifest array) so the arrows stay in
+ * sync with whatever the menu shows — including the trailing "Review mistakes"
+ * entry. We clamp at both ends instead of wrapping, mirroring the news reader.
+ */
+function stepDeck(delta) {
+  const select = document.getElementById("deck-select");
+  const next = select.selectedIndex + delta;
+  if (next < 0 || next >= select.options.length) return; // at the first/last deck
+  select.selectedIndex = next;
+  router.setDeck(select.value);
+}
+
 async function main() {
   // Wire mode buttons.
   for (const btn of document.querySelectorAll("#mode-nav button")) {
     btn.onclick = () => router.setMode(btn.dataset.mode);
   }
+
+  // Wire the deck stepper arrows (‹ newer / older ›).
+  document.getElementById("prev-deck").onclick = () => stepDeck(-1);
+  document.getElementById("next-deck").onclick = () => stepDeck(1);
 
   try {
     const manifest = await loadManifest();

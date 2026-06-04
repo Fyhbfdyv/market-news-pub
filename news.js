@@ -75,9 +75,97 @@ function renderReport(markdown, container) {
   container.querySelectorAll("h2").forEach((h2) => {
     const cls = sectionClass(h2.textContent);
     if (cls) h2.classList.add(cls);
+    // Add the "Listen" button *after* reading the text, so the button label
+    // never leaks into the section we narrate.
+    if (speech.supported) addSpeakButton(h2);
   });
 
   return toc;
+}
+
+// ---------------------------------------------------------------------------
+// Text-to-speech: read a theme aloud with the browser's Web Speech API
+// ---------------------------------------------------------------------------
+
+// `speechSynthesis` is built into the browser, so there's no library to load.
+// We keep a tiny bit of module state: which button is currently "playing", so
+// we can restore its label and never let two themes talk over each other.
+const SPEAK_IDLE = "🔊 Listen";
+const SPEAK_PLAYING = "⏹ Stop";
+
+const speech = {
+  supported: "speechSynthesis" in window,
+  activeButton: null,
+};
+
+/** Restore the active button to its idle state and forget it. */
+function resetSpeechButton() {
+  if (!speech.activeButton) return;
+  speech.activeButton.textContent = SPEAK_IDLE;
+  speech.activeButton.classList.remove("speaking");
+  speech.activeButton = null;
+}
+
+/** Stop any narration in progress (used when switching reports). */
+function stopSpeech() {
+  if (speech.supported) speechSynthesis.cancel();
+  resetSpeechButton();
+}
+
+/**
+ * Toggle narration for one theme.
+ *
+ * If `button` is already the one playing, we stop. Otherwise we cancel whatever
+ * was playing and start this text. `cancel()` is the documented way to stop the
+ * queue before speaking something new.
+ */
+function toggleSpeech(button, text) {
+  const wasActive = speech.activeButton === button;
+  stopSpeech(); // cancels current narration and resets the old button
+  if (wasActive) return; // a second click on the same button = stop
+
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = "en-US";
+  utterance.rate = 1;
+  // Guard against the *previous* utterance's end/error event resetting the
+  // button we just switched to: only reset if this button is still active.
+  const finish = () => {
+    if (speech.activeButton === button) resetSpeechButton();
+  };
+  utterance.onend = finish;
+  utterance.onerror = finish;
+
+  speech.activeButton = button;
+  button.textContent = SPEAK_PLAYING;
+  button.classList.add("speaking");
+  speechSynthesis.speak(utterance);
+}
+
+/**
+ * Collect the readable text of a section: its heading plus every sibling
+ * element up to (but not including) the next heading of any level. Called before
+ * the button is appended, so the button's own label is never read aloud.
+ */
+function collectSectionText(heading) {
+  const parts = [heading.textContent];
+  let node = heading.nextElementSibling;
+  while (node && node.tagName !== "H1" && node.tagName !== "H2") {
+    parts.push(node.textContent);
+    node = node.nextElementSibling;
+  }
+  return parts.join(". ");
+}
+
+/** Append a "Listen" button to a section heading. */
+function addSpeakButton(heading) {
+  const text = collectSectionText(heading);
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "speak-btn btn-ghost";
+  button.textContent = SPEAK_IDLE;
+  button.setAttribute("aria-label", `Listen to ${heading.textContent}`);
+  button.onclick = () => toggleSpeech(button, text);
+  heading.append(button);
 }
 
 function renderToc(entries, tocEl) {
@@ -149,6 +237,7 @@ function populateSelect() {
 }
 
 async function show(filename) {
+  stopSpeech(); // don't keep reading the previous report aloud
   state.current = filename;
   reportEl.replaceChildren(
     Object.assign(document.createElement("p"), {

@@ -73,6 +73,29 @@ select {
   min-width: 180px;
 }
 
+/* Reusable "stepper": a <select> flanked by prev/next arrows. Shared by the
+   vocab deck picker and the news date picker so the widget stays DRY. */
+.picker {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.nav-arrow {
+  background: var(--surface-2);
+  color: var(--text);
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.nav-arrow:hover {
+  background: #415270;
+}
+
 .modes {
   display: flex;
   flex-wrap: wrap;

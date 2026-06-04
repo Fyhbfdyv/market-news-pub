@@ -12,7 +12,11 @@
     <div class="controls">
       <label class="control">
         <span>Deck</span>
-        <select id="deck-select"></select>
+        <div class="picker">
+          <button id="prev-deck" class="btn-ghost nav-arrow" title="Newer deck">‹</button>
+          <select id="deck-select"></select>
+          <button id="next-deck" class="btn-ghost nav-arrow" title="Older deck">›</button>
+        </div>
       </label>
       <nav class="modes" id="mode-nav">
         <button data-mode="flashcard" class="active">Flashcard</button>
