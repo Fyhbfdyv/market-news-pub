@@ -94,6 +94,20 @@ select {
   color: white;
 }
 
+/* Link between the Vocab app and the News reader (used on both pages). */
+.cross-link {
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 0.9rem;
+  align-self: center;
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.cross-link:hover {
+  text-decoration: underline;
+}
+
 /* ---- Stage (mode content) ---- */
 main#stage {
   flex: 1;

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Market News · Daily Summaries</title>
+  <!-- style.css supplies the shared palette + base controls; news.css adds
+       the reading layout. Loading both keeps the vocab and news styles DRY. -->
+  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="./news.css" />
+</head>
+<body>
+  <header class="app-header">
+    <h1>📰 Daily Market Summaries</h1>
+    <div class="controls">
+      <label class="control">
+        <span>Source</span>
+        <nav class="modes" id="source-nav">
+          <button data-source="all" class="active">All</button>
+          <button data-source="b">Bloomberg</button>
+          <button data-source="c">CNBC</button>
+        </nav>
+      </label>
+      <label class="control">
+        <span>Date</span>
+        <div class="date-picker">
+          <button id="prev-day" class="btn-ghost nav-arrow" title="Newer">‹</button>
+          <select id="report-select"></select>
+          <button id="next-day" class="btn-ghost nav-arrow" title="Older">›</button>
+        </div>
+      </label>
+      <a class="cross-link" href="./index.html">📈 Vocab Trainer →</a>
+    </div>
+  </header>
+
+  <main id="layout">
+    <aside id="toc" class="toc" aria-label="Themes in this report"></aside>
+    <article id="report" class="report markdown-body">
+      <p class="status" id="status">Loading summaries…</p>
+    </article>
+  </main>
+
+  <footer class="app-footer">
+    <span id="footer-info"></span>
+  </footer>
+
+  <!-- Vendored markdown renderer (pinned marked v12), then the app. -->
+  <script src="./marked.min.js"></script>
+  <script src="./news.js" defer></script>
+</body>
+</html>
