@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Market News · Vocab Trainer</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <header class="app-header">
+    <h1>📈 Vocab Trainer</h1>
+    <div class="controls">
+      <label class="control">
+        <span>Deck</span>
+        <select id="deck-select"></select>
+      </label>
+      <nav class="modes" id="mode-nav">
+        <button data-mode="flashcard" class="active">Flashcard</button>
+        <button data-mode="quiz">Quiz</button>
+        <button data-mode="listening">Listening</button>
+        <button data-mode="shadowing">Shadowing</button>
+      </nav>
+    </div>
+  </header>
+
+  <main id="stage">
+    <!-- Each mode renders its UI into #stage. -->
+    <p class="status" id="status">Loading vocabulary…</p>
+  </main>
+
+  <footer class="app-footer">
+    <span id="footer-info"></span>
+  </footer>
+
+  <script src="./app.js" defer></script>
+</body>
+</html>
