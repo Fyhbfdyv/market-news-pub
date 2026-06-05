@@ -127,6 +127,9 @@ function toggleSpeech(button, text) {
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = "en-US";
   utterance.rate = 1;
+  // Apply the user's chosen English voice from the shared ⚙ settings panel.
+  const voice = window.VoicePrefs ? window.VoicePrefs.voiceFor("en") : null;
+  if (voice) utterance.voice = voice;
   // Guard against the *previous* utterance's end/error event resetting the
   // button we just switched to: only reset if this button is still active.
   const finish = () => {

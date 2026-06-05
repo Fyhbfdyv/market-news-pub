@@ -115,6 +115,10 @@ const Speech = {
 
   /** Pick the best available voice for a BCP-47 language prefix. */
   voiceFor(langPrefix) {
+    // Delegate to the shared VoicePrefs store so the voice chosen in the ⚙
+    // settings panel applies here. Fall back to the original "first matching
+    // lang" behaviour if voice-prefs.js failed to load (defensive).
+    if (window.VoicePrefs) return window.VoicePrefs.voiceFor(langPrefix);
     const voices = speechSynthesis.getVoices();
     return voices.find((v) => v.lang.toLowerCase().startsWith(langPrefix)) || null;
   },

@@ -46,6 +46,9 @@
 
   <!-- Vendored markdown renderer (pinned marked v12), then the app. -->
   <script src="./marked.min.js"></script>
+  <!-- Shared voice settings (injects the ⚙ panel); load before news.js so
+       toggleSpeech can read the user's chosen voice. -->
+  <script src="./voice-prefs.js" defer></script>
   <script src="./news.js" defer></script>
 </body>
 </html>

@@ -374,3 +374,74 @@ main#stage {
     font-size: 1.5rem;
   }
 }
+
+/* ---- Voice settings (⚙ gear button + modal) ----
+   Injected by voice-prefs.js into both pages, so the styles live in the
+   shared stylesheet. */
+.voice-gear {
+  align-self: center;
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.voice-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(15, 23, 42, 0.7);
+}
+
+.voice-modal-overlay[hidden] {
+  display: none;
+}
+
+.voice-modal {
+  width: 100%;
+  max-width: 420px;
+  background: var(--surface);
+  border: 1px solid var(--surface-2);
+  border-radius: var(--radius);
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.voice-modal-title {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.voice-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.voice-row-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.voice-row-controls select {
+  flex: 1;
+  min-width: 0;
+}
+
+.voice-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.voice-modal-actions .btn {
+  flex: 0 0 auto;
+  min-width: 120px;
+}

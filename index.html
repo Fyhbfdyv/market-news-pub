@@ -38,6 +38,9 @@
     <span id="footer-info"></span>
   </footer>
 
+  <!-- Shared voice settings (injects the ⚙ panel); load before app.js so
+       Speech.voiceFor can read the user's choice. -->
+  <script src="./voice-prefs.js" defer></script>
   <script src="./app.js" defer></script>
 </body>
 </html>
