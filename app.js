@@ -110,6 +110,43 @@ const Mistakes = {
 // Speech layer (Web Speech API) — shared by Listening + Shadowing
 // ---------------------------------------------------------------------------
 
+// Screen Wake Lock — keep the phone's screen awake during audio playback.
+// One job: own the WakeLockSentinel and re-acquire it after the OS drops it.
+const WakeLock = {
+  _sentinel: null,
+  _wanted: false, // are we *currently* meant to be holding a lock?
+
+  /** Ask the OS to keep the screen on. Safe to call when unsupported. */
+  async acquire() {
+    this._wanted = true;
+    if (!("wakeLock" in navigator)) return; // e.g. iOS Safari < 16.4
+    try {
+      this._sentinel = await navigator.wakeLock.request("screen");
+    } catch (err) {
+      // Rejected (low battery, not a user gesture, etc.) — non-fatal:
+      // playback continues, the screen just may dim as usual.
+      console.warn("Wake Lock request failed:", err);
+    }
+  },
+
+  /** Drop the lock and stop wanting it. */
+  async release() {
+    this._wanted = false;
+    if (this._sentinel) {
+      await this._sentinel.release();
+      this._sentinel = null;
+    }
+  },
+};
+
+// iOS auto-releases the lock whenever the tab is backgrounded. When we come
+// back to the foreground, re-acquire it — but only if playback still wants it.
+document.addEventListener("visibilitychange", () => {
+  if (WakeLock._wanted && document.visibilityState === "visible") {
+    WakeLock.acquire();
+  }
+});
+
 const Speech = {
   cancelled: false,
 
@@ -153,10 +190,12 @@ const Speech = {
   stop() {
     Speech.cancelled = true;
     speechSynthesis.cancel();
+    WakeLock.release(); // audio over → let the screen sleep again
   },
 
   start() {
     Speech.cancelled = false;
+    WakeLock.acquire(); // requested from the Play click → a valid user gesture
   },
 };
 
