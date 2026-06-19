@@ -1,6 +1,12 @@
 {
-  "generated": "2026-06-18T14:33:25+00:00",
+  "generated": "2026-06-19T14:32:00+00:00",
   "decks": [
+    {
+      "file": "2026-06-19_b_vocab.md",
+      "date": "2026-06-19",
+      "source": "b",
+      "label": "Bloomberg Daybreak"
+    },
     {
       "file": "2026-06-18_c_vocab.md",
       "date": "2026-06-18",
@@ -405,6 +411,12 @@
     }
   ],
   "reports": [
+    {
+      "file": "2026-06-19_b_sum.md",
+      "date": "2026-06-19",
+      "source": "b",
+      "label": "Bloomberg Daybreak"
+    },
     {
       "file": "2026-06-18_c_sum.md",
       "date": "2026-06-18",
