@@ -1,6 +1,30 @@
 {
-  "generated": "2026-06-22T14:30:24+00:00",
+  "generated": "2026-06-23T14:33:58+00:00",
   "decks": [
+    {
+      "file": "2026-06-23_c_vocab.md",
+      "date": "2026-06-23",
+      "source": "c",
+      "label": "CNBC News"
+    },
+    {
+      "file": "2026-06-23_b_vocab.md",
+      "date": "2026-06-23",
+      "source": "b",
+      "label": "Bloomberg Daybreak"
+    },
+    {
+      "file": "2026-06-22_c_vocab.md",
+      "date": "2026-06-22",
+      "source": "c",
+      "label": "CNBC News"
+    },
+    {
+      "file": "2026-06-22_b_vocab.md",
+      "date": "2026-06-22",
+      "source": "b",
+      "label": "Bloomberg Daybreak"
+    },
     {
       "file": "2026-06-19_b_vocab.md",
       "date": "2026-06-19",
@@ -411,6 +435,30 @@
     }
   ],
   "reports": [
+    {
+      "file": "2026-06-23_c_sum.md",
+      "date": "2026-06-23",
+      "source": "c",
+      "label": "CNBC News"
+    },
+    {
+      "file": "2026-06-23_b_sum.md",
+      "date": "2026-06-23",
+      "source": "b",
+      "label": "Bloomberg Daybreak"
+    },
+    {
+      "file": "2026-06-22_c_sum.md",
+      "date": "2026-06-22",
+      "source": "c",
+      "label": "CNBC News"
+    },
+    {
+      "file": "2026-06-22_b_sum.md",
+      "date": "2026-06-22",
+      "source": "b",
+      "label": "Bloomberg Daybreak"
+    },
     {
       "file": "2026-06-19_b_sum.md",
       "date": "2026-06-19",
