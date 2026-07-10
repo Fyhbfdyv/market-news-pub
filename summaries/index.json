@@ -1,6 +1,18 @@
 {
-  "generated": "2026-07-09T14:32:21+00:00",
+  "generated": "2026-07-10T14:32:12+00:00",
   "decks": [
+    {
+      "file": "2026-07-10_c_vocab.md",
+      "date": "2026-07-10",
+      "source": "c",
+      "label": "CNBC News"
+    },
+    {
+      "file": "2026-07-10_b_vocab.md",
+      "date": "2026-07-10",
+      "source": "b",
+      "label": "Bloomberg Daybreak"
+    },
     {
       "file": "2026-07-09_c_vocab.md",
       "date": "2026-07-09",
@@ -573,6 +585,18 @@
     }
   ],
   "reports": [
+    {
+      "file": "2026-07-10_c_sum.md",
+      "date": "2026-07-10",
+      "source": "c",
+      "label": "CNBC News"
+    },
+    {
+      "file": "2026-07-10_b_sum.md",
+      "date": "2026-07-10",
+      "source": "b",
+      "label": "Bloomberg Daybreak"
+    },
     {
       "file": "2026-07-09_c_sum.md",
       "date": "2026-07-09",
