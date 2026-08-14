@@ -42,6 +42,18 @@ export function currentUser() {
   return session?.user ?? null;
 }
 
+/**
+ * The current access token, or null.
+ *
+ * Synchronous on purpose: the study log posts its last batch from a
+ * `pagehide` handler, where there is no time left to await `getSession()`.
+ * The SDK keeps `session` fresh through `onAuthStateChange`, so this is the
+ * same token its own requests would use.
+ */
+export function accessToken() {
+  return session?.access_token ?? null;
+}
+
 /** Subscribe to sign-in/sign-out. Fires immediately with the current state. */
 export function onAuthChange(callback) {
   listeners.add(callback);

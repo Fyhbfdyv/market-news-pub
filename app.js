@@ -26,6 +26,7 @@ const DATA_BASE = "./summaries/";
  */
 function logEvent(fields) {
   window.StudyLog?.log({ deckId: router.deckId, ...fields });
+  updateFooter(); // keeps the "n to sync" counter honest
 }
 
 // ---------------------------------------------------------------------------
@@ -307,10 +308,6 @@ const QuizMode = {
     let correctCount = 0;
     let shownAt = 0; // start of the current question, for response time
 
-    // Teach the log what these terms look like, so a missed one can be rebuilt
-    // into a review card later. One request for the whole deck.
-    window.StudyLog?.noteDeck(items, router.deckId);
-
     const progress = el("div", { className: "progress" });
     const card = el("div", { className: "card" });
     const options = el("div", { className: "options" });
@@ -496,8 +493,6 @@ const FillBlankMode = {
     let index = 0;
     let correctCount = 0;
     let shownAt = 0;
-
-    window.StudyLog?.noteDeck(items, router.deckId);
 
     const progress = el("div", { className: "progress" });
     const card = el("div", { className: "card" });
@@ -817,15 +812,17 @@ const router = {
       return;
     }
     document.getElementById("deck-select").value = deckId;
+    noteDeck();
     this.renderMode();
   },
 
-  setMode(mode) {
+  /** Switch drill. `paint` is false during boot, where setDeck renders next. */
+  setMode(mode, paint = true) {
     this.mode = mode;
     for (const btn of document.querySelectorAll("#mode-nav button")) {
       btn.classList.toggle("active", btn.dataset.mode === mode);
     }
-    this.renderMode();
+    if (paint) this.renderMode();
   },
 
   renderMode() {
@@ -853,12 +850,31 @@ function setStatus(text) {
   stage.replaceChildren(el("p", { className: "status", textContent: text }));
 }
 
+/**
+ * Register the current deck's display fields with the study log.
+ *
+ * Called once per deck load AND again when the session resolves: sb-client.js
+ * awaits the network at module scope, so on a cold load app.js can reach the
+ * first deck before `window.StudyLog` exists. Without the second call those
+ * terms are never stored, and every mistake in that deck comes back as a bare
+ * word with no meaning attached. The upsert makes the repeat harmless.
+ */
+function noteDeck() {
+  if (router.deckId && router.deckId !== REVIEW_DECK_ID) {
+    window.StudyLog?.noteDeck(router.items, router.deckId);
+  }
+}
+
 function updateFooter() {
   const info = document.getElementById("footer-info");
-  const recording = window.StudyLog?.active
-    ? "recording progress ●"
-    : "not signed in — progress is not saved";
-  info.textContent = `${router.items.length} item(s) · ${recording}`;
+  if (!window.StudyLog?.active) {
+    info.textContent = `${router.items.length} item(s) · not signed in — progress is not saved`;
+    return;
+  }
+  const pending = window.StudyLog.pending;
+  info.textContent =
+    `${router.items.length} item(s) · recording progress ●` +
+    (pending ? ` · ${pending} to sync` : "");
 }
 
 // ---------------------------------------------------------------------------
@@ -894,8 +910,11 @@ function stepDeck(delta) {
 
 async function main() {
   // The study log resolves its session asynchronously, after this runs — so
-  // repaint the footer's recording indicator when it lands.
-  document.addEventListener("studylog:auth", updateFooter);
+  // repaint the footer and re-register the deck's terms when it lands.
+  document.addEventListener("studylog:auth", () => {
+    noteDeck();
+    updateFooter();
+  });
 
   // Wire mode buttons.
   for (const btn of document.querySelectorAll("#mode-nav button")) {
@@ -914,7 +933,15 @@ async function main() {
       return;
     }
     populateDeckSelect(manifest);
-    await router.setDeck(manifest.decks[0].file);
+
+    // ?deck=&mode= lets the progress page link straight into a drill —
+    // "Practise these →" on the mistake list opens the review deck as a quiz.
+    const params = new URLSearchParams(location.search);
+    const wanted = params.get("deck");
+    const select = document.getElementById("deck-select");
+    const known = [...select.options].some((o) => o.value === wanted);
+    if (MODES[params.get("mode")]) router.setMode(params.get("mode"), false);
+    await router.setDeck(known ? wanted : manifest.decks[0].file);
   } catch (err) {
     setStatus(`Startup failed: ${err.message}`);
   }

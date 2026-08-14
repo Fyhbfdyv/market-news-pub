@@ -6,15 +6,10 @@
   <title>Market News · Study Progress</title>
   <link rel="stylesheet" href="./style.css" />
 </head>
-<body>
+<body class="page-stats">
   <header class="app-header">
     <h1>📊 Study Progress</h1>
     <div class="controls">
-      <nav class="modes" id="range-nav">
-        <button data-range="day" class="active">Daily</button>
-        <button data-range="month">Monthly</button>
-        <button data-range="year">Yearly</button>
-      </nav>
       <a class="cross-link" href="./index.html">📈 Vocab Trainer →</a>
     </div>
   </header>
@@ -27,6 +22,9 @@
     <span id="footer-info"></span>
   </footer>
 
+  <!-- stats.js imports study-log.js: this page delivers any events still parked
+       in the outbox before it reads the views, so practice from a session that
+       ended offline shows up here. -->
   <script src="./supabase.min.js" defer></script>
   <script type="module" src="./stats.js"></script>
 </body>
