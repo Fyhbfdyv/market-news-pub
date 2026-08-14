@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Market News · Study Progress</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <header class="app-header">
+    <h1>📊 Study Progress</h1>
+    <div class="controls">
+      <nav class="modes" id="range-nav">
+        <button data-range="day" class="active">Daily</button>
+        <button data-range="month">Monthly</button>
+        <button data-range="year">Yearly</button>
+      </nav>
+      <a class="cross-link" href="./index.html">📈 Vocab Trainer →</a>
+    </div>
+  </header>
+
+  <main id="stage">
+    <p class="status" id="status">Loading your progress…</p>
+  </main>
+
+  <footer class="app-footer">
+    <span id="footer-info"></span>
+  </footer>
+
+  <script src="./supabase.min.js" defer></script>
+  <script type="module" src="./stats.js"></script>
+</body>
+</html>

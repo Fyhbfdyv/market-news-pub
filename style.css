@@ -445,3 +445,146 @@ main#stage {
   flex: 0 0 auto;
   min-width: 120px;
 }
+
+/* ---- Study log account button (injected by sb-client.js) ---- */
+.account-btn {
+  align-self: center;
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.account-btn.signed-in {
+  border-color: var(--good);
+}
+
+/* ---- Study Progress page ----
+   Only stats.html uses these; they live here so the whole app keeps one
+   stylesheet (and one palette) rather than drifting into per-page CSS. */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  width: 100%;
+}
+
+.stat-tile {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 14px;
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  margin-top: 2px;
+}
+
+.stat-note {
+  font-size: 0.7rem;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.panel {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 16px;
+  width: 100%;
+}
+
+.panel h2 {
+  margin: 0 0 12px;
+  font-size: 0.95rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+/* Heatmap: a fixed 7-row grid filled column by column, so each column is one
+   week — the same reading order as a calendar. */
+.heatmap {
+  display: grid;
+  grid-template-rows: repeat(7, 1fr);
+  grid-auto-flow: column;
+  gap: 3px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.heat {
+  width: 11px;
+  height: 11px;
+  border-radius: 3px;
+  background: var(--surface-2);
+}
+
+.heat-1 { background: #0c4a6e; }
+.heat-2 { background: #0369a1; }
+.heat-3 { background: var(--accent-strong); }
+.heat-4 { background: var(--accent); }
+
+.period-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.period-row {
+  display: grid;
+  grid-template-columns: 5.5rem 1fr 5rem;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+}
+
+.period-label {
+  color: var(--muted);
+}
+
+.period-bar {
+  background: var(--surface-2);
+  border-radius: 999px;
+  height: 8px;
+  overflow: hidden;
+}
+
+.period-fill {
+  display: block;
+  height: 100%;
+  background: var(--accent-strong);
+}
+
+.period-value {
+  text-align: right;
+  color: var(--muted);
+}
+
+.weak-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-top: 1px solid var(--surface-2);
+  font-size: 0.85rem;
+}
+
+.weak-term {
+  flex: 1;
+  font-weight: 600;
+}
+
+.weak-count {
+  color: var(--muted);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.pill-good { color: var(--good); }
+.pill-bad { color: var(--bad); }

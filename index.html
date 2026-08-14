@@ -25,6 +25,7 @@
         <button data-mode="listening">Listening</button>
         <button data-mode="shadowing">Shadowing</button>
       </nav>
+      <a class="cross-link" href="./stats.html">📊 Progress →</a>
       <a class="cross-link" href="./news.html">📰 Daily Summaries →</a>
     </div>
   </header>
@@ -37,6 +38,13 @@
   <footer class="app-footer">
     <span id="footer-info"></span>
   </footer>
+
+  <!-- Study log. The vendored Supabase SDK is a classic script (it defines
+       window.supabase), which deferred module scripts can then build on.
+       study-log.js publishes window.StudyLog; app.js calls it defensively, so
+       the trainer still works if any of this fails to load. -->
+  <script src="./supabase.min.js" defer></script>
+  <script type="module" src="./study-log.js"></script>
 
   <!-- Shared voice settings (injects the ⚙ panel); load before app.js so
        Speech.voiceFor can read the user's choice. -->

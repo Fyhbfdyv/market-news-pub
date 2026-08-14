@@ -16,7 +16,17 @@
 "use strict";
 
 const DATA_BASE = "./summaries/";
-const MISTAKES_KEY = "vocab-trainer:mistakes";
+
+/**
+ * Record one study event, if study-log.js loaded and somebody is signed in.
+ *
+ * app.js is a classic script, so it reaches the ES-module study log through
+ * `window`. The optional chaining also makes the whole feature degrade to
+ * nothing: the trainer works exactly as before when the log is unavailable.
+ */
+function logEvent(fields) {
+  window.StudyLog?.log({ deckId: router.deckId, ...fields });
+}
 
 // ---------------------------------------------------------------------------
 // Data layer: fetching + parsing
@@ -77,34 +87,6 @@ async function loadDeck(filename) {
   if (!res.ok) throw new Error(`Deck not found: ${filename}`);
   return parseVocab(await res.text());
 }
-
-// ---------------------------------------------------------------------------
-// Mistakes store (localStorage) — persists the quiz "wrong answers" deck
-// ---------------------------------------------------------------------------
-
-const Mistakes = {
-  load() {
-    try {
-      return JSON.parse(localStorage.getItem(MISTAKES_KEY)) || [];
-    } catch {
-      return [];
-    }
-  },
-  add(item) {
-    const all = Mistakes.load();
-    if (!all.some((m) => m.term === item.term)) {
-      all.push(item);
-      localStorage.setItem(MISTAKES_KEY, JSON.stringify(all));
-    }
-  },
-  remove(term) {
-    const all = Mistakes.load().filter((m) => m.term !== term);
-    localStorage.setItem(MISTAKES_KEY, JSON.stringify(all));
-  },
-  clear() {
-    localStorage.removeItem(MISTAKES_KEY);
-  },
-};
 
 // ---------------------------------------------------------------------------
 // Speech layer (Web Speech API) — shared by Listening + Shadowing
@@ -273,6 +255,11 @@ const FlashcardMode = {
 
     card.addEventListener("click", () => {
       flipped = !flipped;
+      // Only the term → meaning direction is a study action worth logging;
+      // flipping back is just navigation.
+      if (flipped) {
+        logEvent({ mode: "flashcard", kind: "reveal", term: items[index].term });
+      }
       draw();
     });
 
@@ -318,6 +305,11 @@ const QuizMode = {
     const deck = shuffle(items);
     let index = 0;
     let correctCount = 0;
+    let shownAt = 0; // start of the current question, for response time
+
+    // Teach the log what these terms look like, so a missed one can be rebuilt
+    // into a review card later. One request for the whole deck.
+    window.StudyLog?.noteDeck(items, router.deckId);
 
     const progress = el("div", { className: "progress" });
     const card = el("div", { className: "card" });
@@ -327,6 +319,7 @@ const QuizMode = {
 
     const drawQuestion = () => {
       const item = deck[index];
+      shownAt = performance.now();
 
       // Build 4 choices: the correct meaning + 3 distractors from other items.
       const distractors = shuffle(items.filter((i) => i.term !== item.term))
@@ -349,13 +342,19 @@ const QuizMode = {
           // Lock all options once answered.
           [...options.children].forEach((c) => (c.disabled = true));
           const isCorrect = choice === item.zhMeaning;
+          logEvent({
+            mode: "quiz",
+            kind: "answer",
+            term: item.term,
+            correct: isCorrect,
+            chosen: isCorrect ? null : choice,
+            ms: performance.now() - shownAt,
+          });
           if (isCorrect) {
             btn.classList.add("correct");
             correctCount++;
-            Mistakes.remove(item.term); // got it right → drop from review deck
           } else {
             btn.classList.add("wrong");
-            Mistakes.add(item); // remember this miss for later review
             // Also highlight the right answer.
             [...options.children]
               .find((c) => c.textContent === item.zhMeaning)
@@ -374,13 +373,13 @@ const QuizMode = {
 
     const drawResult = () => {
       const pct = Math.round((correctCount / deck.length) * 100);
-      const missed = Mistakes.load().length;
+      const missed = deck.length - correctCount;
       clearStageLocal();
       stage.append(
         el("div", { className: "card" }, [
           el("div", { className: "term", textContent: `${pct}%` }),
           el("div", { className: "example", textContent: `${correctCount} / ${deck.length} correct` }),
-          el("div", { className: "hint", textContent: `${missed} item(s) saved for review` }),
+          el("div", { className: "hint", textContent: `${missed} missed this round` }),
         ]),
         el("div", { className: "actions" }, [
           (() => {
@@ -496,6 +495,9 @@ const FillBlankMode = {
     const deck = shuffle(items);
     let index = 0;
     let correctCount = 0;
+    let shownAt = 0;
+
+    window.StudyLog?.noteDeck(items, router.deckId);
 
     const progress = el("div", { className: "progress" });
     const card = el("div", { className: "card" });
@@ -505,6 +507,7 @@ const FillBlankMode = {
 
     const drawQuestion = () => {
       const item = deck[index];
+      shownAt = performance.now();
 
       // Word bank: the correct term + up to 3 distractor terms from other items.
       const distractors = shuffle(items.filter((i) => i.term !== item.term))
@@ -529,13 +532,19 @@ const FillBlankMode = {
           [...bank.children].forEach((c) => (c.disabled = true));
           const isCorrect = choice === item.term;
           cloze.fill(item.term, isCorrect);
+          logEvent({
+            mode: "fill",
+            kind: "answer",
+            term: item.term,
+            correct: isCorrect,
+            chosen: isCorrect ? null : choice,
+            ms: performance.now() - shownAt,
+          });
           if (isCorrect) {
             btn.classList.add("correct");
             correctCount++;
-            Mistakes.remove(item.term); // got it right → drop from review deck
           } else {
             btn.classList.add("wrong");
-            Mistakes.add(item); // remember this miss for later review
             [...bank.children]
               .find((c) => c.textContent === item.term)
               ?.classList.add("correct");
@@ -553,12 +562,12 @@ const FillBlankMode = {
 
     const drawResult = () => {
       const pct = Math.round((correctCount / deck.length) * 100);
-      const missed = Mistakes.load().length;
+      const missed = deck.length - correctCount;
       stage.replaceChildren(
         el("div", { className: "card" }, [
           el("div", { className: "term", textContent: `${pct}%` }),
           el("div", { className: "example", textContent: `${correctCount} / ${deck.length} correct` }),
-          el("div", { className: "hint", textContent: `${missed} item(s) saved for review` }),
+          el("div", { className: "hint", textContent: `${missed} missed this round` }),
         ]),
         el("div", { className: "actions" }, [
           (() => {
@@ -638,12 +647,21 @@ const ListeningMode = {
     /** Speak a single item end-to-end. One job: play one card. */
     const playOne = async (item, i) => {
       showItem(item, i);
+      const startedAt = performance.now();
       await Speech.speak(item.term, "en-US", rate);
       await Speech.speak(item.example, "en-US", rate);
       if (withChinese) {
         await Speech.wait(250);
         await Speech.speak(item.zhMeaning, "zh-TW", rate);
       }
+      // Log after the audio finishes, with how long it actually took — a play
+      // cut short by ⏹ is still real listening time.
+      logEvent({
+        mode: "listening",
+        kind: "play",
+        term: item.term,
+        ms: performance.now() - startedAt,
+      });
       await Speech.wait(600);
     };
 
@@ -732,9 +750,17 @@ const ShadowingMode = {
         for (let r = 0; r < repeats; r++) {
           if (Speech.cancelled) break;
           nowPlaying.textContent = `Listen (${i + 1}/${items.length})…`;
+          const startedAt = performance.now();
           await Speech.speak(phrase, "en-US", 0.9);
           nowPlaying.textContent = "🗣️ Your turn — repeat aloud!";
           await Speech.wait(gap);
+          // One event per repetition: shadowing 3× is three times the practice.
+          logEvent({
+            mode: "shadowing",
+            kind: "play",
+            term: item.term,
+            ms: performance.now() - startedAt,
+          });
         }
       }
       nowPlaying.textContent = Speech.cancelled ? "Stopped." : "Done ✓";
@@ -779,7 +805,9 @@ const router = {
     setStatus("Loading deck…");
     try {
       if (deckId === REVIEW_DECK_ID) {
-        this.items = Mistakes.load();
+        // Derived server-side from the answer history: every term whose most
+        // recent answer was wrong, hardest first. Nothing to keep in sync.
+        this.items = (await window.StudyLog?.fetchReviewDeck()) ?? [];
       } else {
         const deck = this.manifest.decks.find((d) => d.file === deckId);
         this.items = deck ? await loadDeck(deck.file) : [];
@@ -806,10 +834,11 @@ const router = {
       stage.append(
         el("p", {
           className: "status",
-          textContent:
-            this.deckId === REVIEW_DECK_ID
-              ? "No mistakes saved yet — take a quiz first. 🎉"
-              : "This deck is empty.",
+          textContent: this.deckId !== REVIEW_DECK_ID
+            ? "This deck is empty."
+            : window.StudyLog?.active
+              ? "No mistakes to review — take a quiz first. 🎉"
+              : "Sign in (🔒 in the header) to keep a review deck.",
         })
       );
       updateFooter();
@@ -826,8 +855,10 @@ function setStatus(text) {
 
 function updateFooter() {
   const info = document.getElementById("footer-info");
-  const reviewCount = Mistakes.load().length;
-  info.textContent = `${router.items.length} item(s) · ${reviewCount} saved for review`;
+  const recording = window.StudyLog?.active
+    ? "recording progress ●"
+    : "not signed in — progress is not saved";
+  info.textContent = `${router.items.length} item(s) · ${recording}`;
 }
 
 // ---------------------------------------------------------------------------
@@ -862,6 +893,10 @@ function stepDeck(delta) {
 }
 
 async function main() {
+  // The study log resolves its session asynchronously, after this runs — so
+  // repaint the footer's recording indicator when it lands.
+  document.addEventListener("studylog:auth", updateFooter);
+
   // Wire mode buttons.
   for (const btn of document.querySelectorAll("#mode-nav button")) {
     btn.onclick = () => router.setMode(btn.dataset.mode);
