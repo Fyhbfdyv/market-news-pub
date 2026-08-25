@@ -1,6 +1,12 @@
 {
-  "generated": "2026-08-24T14:34:01+00:00",
+  "generated": "2026-08-25T14:32:35+00:00",
   "decks": [
+    {
+      "file": "2026-08-25_c_vocab.md",
+      "date": "2026-08-25",
+      "source": "c",
+      "label": "CNBC News"
+    },
     {
       "file": "2026-08-24_c_vocab.md",
       "date": "2026-08-24",
@@ -945,6 +951,12 @@
     }
   ],
   "reports": [
+    {
+      "file": "2026-08-25_c_sum.md",
+      "date": "2026-08-25",
+      "source": "c",
+      "label": "CNBC News"
+    },
     {
       "file": "2026-08-24_c_sum.md",
       "date": "2026-08-24",
