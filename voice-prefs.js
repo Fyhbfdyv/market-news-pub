@@ -179,12 +179,12 @@
 
   /** Inject the ⚙ button into the page header's controls bar. */
   function mountGearButton(overlay) {
-    const controls = document.querySelector(".app-header .controls");
+    const controls = document.querySelector(".app-header .header-tools");
     if (!controls) return; // page has no standard header — skip silently
     const gear = document.createElement("button");
     gear.type = "button";
     gear.className = "btn-ghost voice-gear";
-    gear.textContent = "⚙";
+    gear.innerHTML = `<svg class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6l1 3 3 1 2 5-2 5-3 1-1 3H9l-1-3-3-1-2-5 2-5 3-1Z"/><circle cx="12" cy="12" r="3"/></svg>`;
     gear.title = "Voice settings";
     gear.setAttribute("aria-label", "Voice settings");
     gear.onclick = () => (overlay.hidden = false);

@@ -95,7 +95,7 @@ export async function signOut() {
 // ---------------------------------------------------------------------------
 
 function injectButton() {
-  const controls = document.querySelector(".app-header .controls");
+  const controls = document.querySelector(".app-header .header-tools");
   if (!controls) return; // page has no standard header — skip silently
 
   const btn = document.createElement("button");
@@ -106,7 +106,7 @@ function injectButton() {
   controls.append(btn);
 
   const paint = (user) => {
-    btn.textContent = user ? "👤" : "🔒";
+    btn.innerHTML = `<svg class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></svg><span>${user ? "Account" : "Sign in"}</span>`;
     btn.classList.toggle("signed-in", Boolean(user));
   };
   onAuthChange(paint);
@@ -217,7 +217,7 @@ client.auth.onAuthStateChange((event, next) => {
 });
 
 // getSession() resolves after the SDK has restored a stored session (and after
-// it has consumed an invitation/recovery hash), so the first paint is not a false "🔒".
+// it has consumed an invitation/recovery hash), so the first paint is not a false signed-out state.
 const { data } = await client.auth.getSession();
 session = data.session;
 notify();

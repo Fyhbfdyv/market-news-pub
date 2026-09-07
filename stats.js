@@ -330,7 +330,7 @@ function render() {
     stage.append(
       el("div", { className: "panel empty" }, [
         el("div", { className: "empty-icon", textContent: "🔒" }),
-        el("p", { textContent: "Sign in with the 🔒 button above to see your study record." }),
+        el("p", { textContent: "Sign in using the account button in the header to see your study record." }),
         el("p", { className: "hint", textContent: "Practice is only recorded while you are signed in." }),
       ])
     );

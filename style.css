@@ -31,17 +31,72 @@ body {
 
 /* ---- Header & controls ---- */
 .app-header {
-  padding: 16px 16px 8px;
-  background: var(--surface);
+  padding: 20px clamp(16px, 4vw, 56px) 16px;
+  background: #162236;
   border-bottom: 1px solid var(--surface-2);
-  position: sticky;
-  top: 0;
-  z-index: 10;
 }
 
-.app-header h1 {
-  margin: 0 0 12px;
-  font-size: 1.25rem;
+.header-top, .brand, .header-navigation, .page-nav, .header-tools {
+  display: flex;
+  align-items: center;
+}
+.header-top { justify-content: space-between; flex-wrap: wrap; gap: 20px; }
+.brand { gap: 12px; }
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid #385a74;
+  border-radius: 13px;
+  background: #203c53;
+  color: #7dd3fc;
+}
+.header-icon { width: 18px; height: 18px; flex-shrink: 0; }
+.brand-mark .header-icon { width: 24px; height: 24px; }
+.brand-eyebrow {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--muted);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.app-header h1 { margin: 0; font-size: 1.25rem; font-weight: 650; letter-spacing: -0.03em; }
+.header-navigation { gap: 16px; flex-wrap: wrap; }
+.page-nav { gap: 4px; flex-wrap: wrap; }
+.header-tools { gap: 8px; }
+.header-tools:empty { display: none; }
+.app-header > .controls { margin-top: 20px; padding-top: 16px; border-top: 1px solid #2a384d; }
+.header-tools button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 42px;
+  border-radius: 11px;
+  color: var(--text);
+  background: #1e2e44;
+  font-size: 0.8rem;
+}
+.header-tools .account-btn { order: -1; }
+.header-tools button:hover { background: #2c415a; border-color: #64748b; }
+.app-header :is(a, button, select):focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+@media (max-width: 600px) {
+  .header-top { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px 8px; }
+  .header-navigation { display: contents; }
+  .brand { gap: 8px; }
+  .brand-mark { width: 34px; height: 38px; flex-shrink: 0; }
+  .app-header h1 { font-size: 1.05rem; }
+  .page-nav { grid-column: 1 / -1; grid-row: 2; }
+  .header-tools { grid-column: 2; grid-row: 1; }
+  .header-tools .account-btn span { display: none; }
+  .page-nav .cross-link { flex: 1; justify-content: center; padding: 10px 6px; font-size: 0.75rem; }
+  .page-nav .header-icon { display: none; }
+  .header-tools { margin-left: auto; }
+  .controls > .control, .picker { min-width: 0; max-width: 100%; }
+  .picker select { min-width: 0; width: 100%; }
 }
 
 .controls {
@@ -117,19 +172,22 @@ select {
   color: white;
 }
 
-/* Link between the Vocab app and the News reader (used on both pages). */
+/* Shared page navigation. */
 .cross-link {
-  color: var(--accent);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  color: #b8c6d9;
   text-decoration: none;
-  font-size: 0.9rem;
-  align-self: center;
-  margin-left: auto;
+  font-size: 0.82rem;
+  font-weight: 500;
   white-space: nowrap;
 }
-
-.cross-link:hover {
-  text-decoration: underline;
-}
+.cross-link:hover { background: #24364d; color: white; }
+.cross-link[aria-current="page"] { background: #243e55; color: #9cddff; }
 
 /* ---- Stage (mode content) ---- */
 main#stage {

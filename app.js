@@ -835,7 +835,7 @@ const router = {
             ? "This deck is empty."
             : window.StudyLog?.active
               ? "No mistakes to review — take a quiz first. 🎉"
-              : "Sign in (🔒 in the header) to keep a review deck.",
+              : "Sign in using the account button in the header to keep a review deck.",
         })
       );
       updateFooter();

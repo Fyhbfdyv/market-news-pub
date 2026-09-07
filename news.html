@@ -11,7 +11,20 @@
 </head>
 <body>
   <header class="app-header">
-    <h1>📰 Daily Market Summaries</h1>
+    <div class="header-top">
+      <div class="brand">
+        <span class="brand-mark"><svg class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h4v4H7zM15 8h2m-2 4h2M7 16h10"/></svg></span>
+        <div><span class="brand-eyebrow">Market News</span><h1>Daily Summaries</h1></div>
+      </div>
+      <div class="header-navigation">
+        <nav class="page-nav" aria-label="Main navigation">
+          <a class="cross-link" href="./index.html"><svg class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 7v14m0-14C9 4 5 4 2 5v14c4-1 7 0 10 2 3-2 6-3 10-2V5c-3-1-7-1-10 2Z"/></svg><span>Vocab Trainer</span></a>
+          <a class="cross-link" href="./stats.html"><svg class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4v16h16M8 15v-4m5 4V7m5 8V4"/></svg><span>Progress</span></a>
+          <a class="cross-link" href="./news.html" aria-current="page"><svg class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h4v4H7zM15 8h2m-2 4h2M7 16h10"/></svg><span>Daily Summaries</span></a>
+        </nav>
+        <div class="header-tools" role="group" aria-label="Account and settings"></div>
+      </div>
+    </div>
     <div class="controls">
       <label class="control">
         <span>Source</span>
@@ -29,7 +42,6 @@
           <button id="next-day" class="btn-ghost nav-arrow" title="Older">›</button>
         </div>
       </label>
-      <a class="cross-link" href="./index.html">📈 Vocab Trainer →</a>
     </div>
   </header>
 
