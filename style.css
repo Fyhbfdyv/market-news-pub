@@ -829,3 +829,12 @@ body.page-stats main#stage {
     grid-template-columns: repeat(4, 1fr);
   }
 }
+
+/* Shared account form for training and study progress. */
+.account-dialog { max-width: 420px; width: calc(100% - 48px); border-radius: 12px; padding: 24px; }
+.account-dialog::backdrop { background: #0008; }
+.account-dialog form, .account-dialog label { display: grid; gap: 10px; }
+.account-dialog form { gap: 16px; }
+.account-dialog [hidden] { display: none; }
+.account-dialog input { box-sizing: border-box; width: 100%; padding: 10px; font: inherit; }
+.account-error { color: #b42318; margin: 0; }

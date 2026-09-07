@@ -10,9 +10,8 @@
  * row level security in Postgres. The secret/service_role key must never
  * appear in this folder.
  *
- * On sign-in: magic link only (no passwords to store or leak) and
- * `shouldCreateUser: false`, so the guest list is exactly the users invited
- * from the Supabase dashboard. A stranger who finds this page cannot get in.
+ * Sign-in uses invited email/password accounts. Disable public signup in
+ * Supabase Auth; frontend controls are not an authorization boundary.
  */
 
 export const SUPABASE_URL = "https://jbqjzkzhmybzruzcppjs.supabase.co";
@@ -23,6 +22,11 @@ if (!window.supabase) {
   throw new Error("supabase.min.js must load before sb-client.js");
 }
 
+// Capture the callback type before the SDK consumes the URL fragment.
+let needsPassword = ["invite", "recovery"].includes(
+  new URLSearchParams(location.hash.slice(1)).get("type"),
+);
+
 export const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
   // Every table this app touches lives in the `vocab` schema, so we point the
   // client at it once instead of prefixing every query.
@@ -30,7 +34,7 @@ export const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
-    detectSessionInUrl: true, // consume the #access_token the magic link returns
+    detectSessionInUrl: true, // consume invitation and recovery callbacks
   },
 });
 
@@ -61,23 +65,29 @@ export function onAuthChange(callback) {
   return () => listeners.delete(callback);
 }
 
-/**
- * Email a one-time sign-in link for this page.
- *
- * Raises whatever Supabase returns; "Signups not allowed" is the expected
- * error for an address that was never invited.
- */
-export async function signIn(email) {
-  const redirect = `${location.origin}${location.pathname}`;
-  const { error } = await client.auth.signInWithOtp({
-    email,
-    options: { emailRedirectTo: redirect, shouldCreateUser: false },
+/** Sign in with an existing account. Raises Supabase authentication errors. */
+export async function signIn(email, password) {
+  const { error } = await client.auth.signInWithPassword({
+    email: email.trim(),
+    password,
   });
   if (error) throw error;
 }
 
+/** Set the signed-in user's password. Raises validation or Supabase errors. */
+export async function setPassword(password, confirmation) {
+  if (!currentUser()) throw new Error("Open your invitation or recovery link first.");
+  if (!password || password !== confirmation) {
+    throw new Error("Enter matching passwords.");
+  }
+  const { error } = await client.auth.updateUser({ password });
+  if (error) throw error;
+  needsPassword = false;
+}
+
 export async function signOut() {
-  await client.auth.signOut();
+  const { error } = await client.auth.signOut();
+  if (error) throw error;
 }
 
 // ---------------------------------------------------------------------------
@@ -101,21 +111,97 @@ function injectButton() {
   };
   onAuthChange(paint);
 
-  btn.onclick = async () => {
-    const user = currentUser();
-    if (user) {
-      if (confirm(`Signed in as ${user.email}\n\nSign out?`)) await signOut();
-      return;
-    }
-    const email = prompt("Email for your study record:\n(invited addresses only)");
-    if (!email) return;
+  const dialog = document.createElement("dialog");
+  dialog.className = "account-dialog";
+  dialog.setAttribute("aria-labelledby", "account-title");
+  dialog.innerHTML = `
+    <form>
+      <h2 id="account-title"></h2>
+      <p class="account-hint"></p>
+      <label class="account-email">Invited email
+        <input name="email" type="email" autocomplete="username" required>
+      </label>
+      <label>Password
+        <input name="password" type="password" autocomplete="current-password" required>
+      </label>
+      <label class="account-confirm">Confirm password
+        <input name="confirmation" type="password" autocomplete="new-password">
+      </label>
+      <p class="account-error" role="alert"></p>
+      <button type="submit">Sign in</button>
+      <button type="button" class="account-cancel">Cancel</button>
+    </form>`;
+  document.body.append(dialog);
+  const form = dialog.querySelector("form");
+  const email = form.elements.namedItem("email");
+  const password = form.elements.namedItem("password");
+  const confirmation = form.elements.namedItem("confirmation");
+  const submit = form.querySelector('[type="submit"]');
+  const error = form.querySelector(".account-error");
+  let settingPassword = false;
+  let busy = false;
+  const open = (setup) => {
+    if (dialog.open) return;
+    settingPassword = setup;
+    form.reset();
+    error.textContent = "";
+    form.querySelector("h2").textContent = setup ? "Set password" : "Sign in";
+    form.querySelector(".account-hint").textContent = setup
+      ? "Choose a password for future email sign-ins."
+      : "Use your invited email and password. For access or password recovery, contact the administrator.";
+    form.querySelector(".account-email").hidden = setup;
+    email.disabled = setup;
+    form.querySelector(".account-confirm").hidden = !setup;
+    confirmation.required = setup;
+    confirmation.disabled = !setup;
+    password.autocomplete = setup ? "new-password" : "current-password";
+    submit.textContent = setup ? "Save password" : "Sign in";
+    dialog.showModal();
+    (setup ? password : email).focus();
+  };
+  const cancel = dialog.querySelector(".account-cancel");
+  cancel.onclick = () => dialog.close();
+  dialog.addEventListener("cancel", (event) => {
+    if (busy) event.preventDefault();
+  });
+  dialog.addEventListener("close", () => form.reset());
+  form.onsubmit = async (event) => {
+    event.preventDefault();
+    if (busy) return;
+    busy = true;
+    submit.disabled = true;
+    cancel.disabled = true;
+    error.textContent = "";
     try {
-      await signIn(email.trim());
-      alert("Check your inbox — the sign-in link is on its way. ✉️");
+      if (settingPassword) await setPassword(password.value, confirmation.value);
+      else await signIn(email.value, password.value);
+      dialog.close();
     } catch (err) {
-      alert(`Could not sign in: ${err.message}`);
+      error.textContent = err.message;
+      password.value = "";
+      confirmation.value = "";
+      password.focus();
+    } finally {
+      busy = false;
+      submit.disabled = false;
+      cancel.disabled = false;
     }
   };
+  btn.onclick = async () => {
+    const user = currentUser();
+    if (user && !needsPassword) {
+      if (confirm(`Signed in as ${user.email}\n\nSign out?`)) {
+        try { await signOut(); }
+        catch (err) { alert(`Could not sign out: ${err.message}`); }
+      }
+      return;
+    }
+    open(Boolean(user && needsPassword));
+  };
+  onAuthChange((user) => {
+    if (user && needsPassword) open(true);
+    else if (!user && dialog.open && settingPassword) dialog.close();
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -124,13 +210,14 @@ function injectButton() {
 
 const notify = () => listeners.forEach((cb) => cb(currentUser()));
 
-client.auth.onAuthStateChange((_event, next) => {
+client.auth.onAuthStateChange((event, next) => {
+  if (event === "PASSWORD_RECOVERY") needsPassword = true;
   session = next;
   notify();
 });
 
 // getSession() resolves after the SDK has restored a stored session (and after
-// it has consumed a magic-link hash), so the first paint is not a false "🔒".
+// it has consumed an invitation/recovery hash), so the first paint is not a false "🔒".
 const { data } = await client.auth.getSession();
 session = data.session;
 notify();
