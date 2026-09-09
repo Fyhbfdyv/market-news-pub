@@ -13,20 +13,23 @@
  * modes decoupled — adding a 5th mode does not touch the others.
  */
 
-"use strict";
+import StudyLog from "./study-log.js";
+import { currentUser, onAuthChange } from "./sb-client.js";
+import { favorites, favoriteControl, manageFavorites } from "./favorites.js";
+import { parseVocab, termPattern, eligibleItems, answerChoices } from "./vocab-core.js";
 
 const DATA_BASE = "./summaries/";
 
-/**
- * Record one study event, if study-log.js loaded and somebody is signed in.
- *
- * app.js is a classic script, so it reaches the ES-module study log through
- * `window`. The optional chaining also makes the whole feature degrade to
- * nothing: the trainer works exactly as before when the log is unavailable.
- */
-function logEvent(fields) {
-  window.StudyLog?.log({ deckId: router.deckId, ...fields });
-  updateFooter(); // keeps the "n to sync" counter honest
+/** Capture ownership and deck before asynchronous audio work starts. */
+function studyRecorder() {
+  const owner = currentUser()?.id;
+  const deckId = router.deckId;
+  const render = router.render;
+  return (fields) => {
+    if (currentUser()?.id !== owner || router.render !== render) return;
+    StudyLog.log({ deckId, ...fields });
+    updateFooter();
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -38,48 +41,6 @@ async function loadManifest() {
   const res = await fetch(`${DATA_BASE}index.json`, { cache: "no-cache" });
   if (!res.ok) throw new Error(`Manifest not found (HTTP ${res.status})`);
   return res.json();
-}
-
-/**
- * Parse raw vocab markdown into objects.
- *
- * Blank lines separate entries; we split each non-empty line on ASCII ';'.
- * Fullwidth '；' inside Chinese fields is preserved (we only split on ';').
- *
- * Upstream is occasionally inconsistent: most lines give the full
- * "term; en; zh_meaning; zh_example" (4 fields), but ~9% collapse the Chinese
- * into a single field (3 fields). We map defensively so EVERY item ends up
- * with a non-empty `zhMeaning` — the quiz uses it as the answer key, so an
- * empty one would break that mode.
- */
-function parseVocab(raw) {
-  const items = [];
-  for (const line of raw.split("\n")) {
-    const trimmed = line.trim();
-    if (!trimmed) continue;
-    let parts = trimmed.split(";").map((p) => p.trim());
-    if (parts.length < 2) continue; // not a vocab line
-    
-    // If the line has exactly 3 parts but the 3rd part contains a full-width semicolon
-    // (；), it means the LLM used it to separate the Traditional Chinese translation and 
-    // example sentence instead of a half-width semicolon. Split it to recover all 4 fields.
-    if (parts.length === 3 && parts[2].includes("；")) {
-      const idx = parts[2].indexOf("；");
-      const zhMeaning = parts[2].slice(0, idx).trim();
-      const zhExample = parts[2].slice(idx + 1).trim();
-      parts = [parts[0], parts[1], zhMeaning, zhExample];
-    }
-
-    // Some upstream rows arrive as a numbered list ("1. felt inclined to");
-    // strip that enumeration so the term is clean for display AND so the quiz
-    // can locate it inside the example sentence.
-    const term = parts[0].replace(/^\d+\.\s*/, "");
-    const example = parts[1] || "";
-    const zhMeaning = parts[2] || example || term; // never empty
-    const zhExample = parts[3] || "";
-    items.push({ term, example, zhMeaning, zhExample });
-  }
-  return items;
 }
 
 /** Fetch one deck file and return parsed vocab items. */
@@ -132,6 +93,7 @@ document.addEventListener("visibilitychange", () => {
 
 const Speech = {
   cancelled: false,
+  runId: 0,
 
   /** Pick the best available voice for a BCP-47 language prefix. */
   voiceFor(langPrefix) {
@@ -171,12 +133,14 @@ const Speech = {
   },
 
   stop() {
+    Speech.runId++;
     Speech.cancelled = true;
     speechSynthesis.cancel();
     WakeLock.release(); // audio over → let the screen sleep again
   },
 
   start() {
+    Speech.stop();
     Speech.cancelled = false;
     WakeLock.acquire(); // requested from the Play click → a valid user gesture
   },
@@ -224,6 +188,7 @@ function shuffle(array) {
 
 const FlashcardMode = {
   render(items) {
+    const logEvent = studyRecorder();
     let index = 0;
     let flipped = false;
 
@@ -234,12 +199,13 @@ const FlashcardMode = {
     const draw = () => {
       const item = items[index];
       card.replaceChildren();
+      if (!item.zhMeaning && !item.zhExample) flipped = false;
       if (!flipped) {
         card.append(
           el("div", { className: "term", textContent: item.term }),
           el("div", { className: "divider" }),
           el("div", { className: "example", textContent: item.example }),
-          el("div", { className: "hint", textContent: "Tap to reveal meaning" })
+          el("div", { className: "hint", textContent: item.zhMeaning || item.zhExample ? "Tap to reveal meaning" : "English sentence" })
         );
       } else {
         card.append(
@@ -248,6 +214,7 @@ const FlashcardMode = {
           el("div", { className: "zh-example", textContent: item.zhExample })
         );
       }
+      card.append(saveControl(item));
       progress.replaceChildren(
         el("span", { textContent: `${index + 1} / ${items.length}` }),
         el("span", { className: "pill", textContent: flipped ? "meaning" : "term" })
@@ -255,11 +222,12 @@ const FlashcardMode = {
     };
 
     card.addEventListener("click", () => {
+      if (!items[index].zhMeaning && !items[index].zhExample) return;
       flipped = !flipped;
       // Only the term → meaning direction is a study action worth logging;
       // flipping back is just navigation.
       if (flipped) {
-        logEvent({ mode: "flashcard", kind: "reveal", term: items[index].term });
+        logEvent({ mode: "flashcard", kind: "reveal", item: items[index] });
       }
       draw();
     });
@@ -282,7 +250,9 @@ const FlashcardMode = {
       const item = items[index];
       Speech.start();
       // Say the vocab word first, then read its example sentence.
+      const runId = Speech.runId;
       await Speech.speak(item.term, "en-US");
+      if (runId !== Speech.runId) return;
       if (item.example) await Speech.speak(item.example, "en-US");
     };
 
@@ -298,6 +268,7 @@ const FlashcardMode = {
 
 const QuizMode = {
   render(items) {
+    const logEvent = studyRecorder();
     if (items.length < 2) {
       stage.append(el("p", { className: "status", textContent: "Need at least 2 items to quiz." }));
       return;
@@ -319,9 +290,7 @@ const QuizMode = {
       shownAt = performance.now();
 
       // Build 4 choices: the correct meaning + 3 distractors from other items.
-      const distractors = shuffle(items.filter((i) => i.term !== item.term))
-        .slice(0, 3)
-        .map((i) => i.zhMeaning);
+      const distractors = shuffle(answerChoices(items, item, "quiz")).slice(0, 3);
       const choices = shuffle([item.zhMeaning, ...distractors]);
 
       card.replaceChildren(
@@ -330,6 +299,7 @@ const QuizMode = {
         el("div", { className: "example", textContent: item.example })
       );
 
+      card.append(saveControl(item));
       options.replaceChildren();
       next.disabled = true;
 
@@ -342,7 +312,7 @@ const QuizMode = {
           logEvent({
             mode: "quiz",
             kind: "answer",
-            term: item.term,
+            item,
             correct: isCorrect,
             chosen: isCorrect ? null : choice,
             ms: performance.now() - shownAt,
@@ -411,39 +381,6 @@ const QuizMode = {
 // Mode: Fill in the blanks (cloze) — read the sentence, tap the missing word
 // ---------------------------------------------------------------------------
 
-/** Escape a string so it can be embedded literally in a RegExp. */
-function escapeRegExp(text) {
-  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-/**
- * Build a case-insensitive RegExp that matches `term` in a sentence even when
- * its words are inflected ("double down on" should match "doubling down on").
- *
- * We match WORD BY WORD so inflection on any word is tolerated, not just the
- * last one. Per word we account for the common English stem changes:
- *   - silent-'e' drop:  double → doubl(e?) → "doubling", "doubled"
- *   - 'y' → 'ies'/'ied': study → stud(y?)  → "studies", "studying"
- *   - plain suffixes:    curb  → curb\w*    → "curbs", "curbing"
- * Short function words (≤2 chars like "on"/"at") are matched exactly, since they
- * never inflect and a loose `\w*` there would over-match unrelated words.
- *
- * Between the term's words we allow up to 2 INSERTED words, so separable phrases
- * still match ("give back gains" → "giving back those gains"). The cap keeps the
- * blank from ballooning across the sentence if the words happen to recur.
- */
-function termPattern(term) {
-  const word = (w) => {
-    if (w.length <= 2) return escapeRegExp(w);
-    if (/e$/i.test(w)) return `${escapeRegExp(w.slice(0, -1))}e?\\w*`;
-    if (/y$/i.test(w)) return `${escapeRegExp(w.slice(0, -1))}y?\\w*`;
-    return `${escapeRegExp(w)}\\w*`;
-  };
-  const gap = "\\s+(?:\\w+\\s+){0,2}"; // separator: a space, then ≤2 inserted words
-  const words = term.trim().split(/\s+/).map(word);
-  return new RegExp(`\\b${words.join(gap)}`, "i");
-}
-
 /**
  * Turn an example sentence into a "cloze" — the sentence with `term` hidden
  * behind a blank the learner must fill.
@@ -456,9 +393,8 @@ function termPattern(term) {
  * Upstream examples USUALLY contain the term, but often in an inflected form
  * ("clinched" for "clinch", "doubling down on" for "double down on"). We match
  * via `termPattern`, which tolerates that, and blank out the WHOLE matched span
- * so the gap lands in the right place. If it still fails (the example omits the
- * term entirely), we fall back to showing the sentence as context with a
- * trailing blank, so the question still works.
+ * so the gap lands in the right place. Ineligible examples are excluded before
+ * rendering; an unmatched example is an error, never a made-up trailing blank.
  */
 function buildCloze(example, term) {
   const blank = el("span", { className: "blank", textContent: "______" });
@@ -472,11 +408,11 @@ function buildCloze(example, term) {
       example.slice(match.index + match[0].length)
     );
   } else {
-    node.append(example ? `${example} ` : "", blank);
+    throw new Error("The example does not contain the target word.");
   }
 
-  const fill = (word, ok) => {
-    blank.textContent = word;
+  const fill = (ok) => {
+    blank.textContent = match[0];
     blank.classList.add(ok ? "blank-correct" : "blank-wrong");
   };
   return { node, fill };
@@ -484,6 +420,7 @@ function buildCloze(example, term) {
 
 const FillBlankMode = {
   render(items) {
+    const logEvent = studyRecorder();
     if (items.length < 2) {
       stage.append(el("p", { className: "status", textContent: "Need at least 2 items to play." }));
       return;
@@ -505,9 +442,7 @@ const FillBlankMode = {
       shownAt = performance.now();
 
       // Word bank: the correct term + up to 3 distractor terms from other items.
-      const distractors = shuffle(items.filter((i) => i.term !== item.term))
-        .slice(0, 3)
-        .map((i) => i.term);
+      const distractors = shuffle(answerChoices(items, item, "fill")).slice(0, 3);
       const choices = shuffle([item.term, ...distractors]);
 
       const cloze = buildCloze(item.example, item.term);
@@ -517,6 +452,7 @@ const FillBlankMode = {
         el("div", { className: "zh-meaning", textContent: item.zhMeaning })
       );
 
+      card.append(saveControl(item));
       bank.replaceChildren();
       next.disabled = true;
 
@@ -526,11 +462,11 @@ const FillBlankMode = {
           // Lock the bank once answered, then reveal the answer in the blank.
           [...bank.children].forEach((c) => (c.disabled = true));
           const isCorrect = choice === item.term;
-          cloze.fill(item.term, isCorrect);
+          cloze.fill(isCorrect);
           logEvent({
             mode: "fill",
             kind: "answer",
-            term: item.term,
+            item,
             correct: isCorrect,
             chosen: isCorrect ? null : choice,
             ms: performance.now() - shownAt,
@@ -597,6 +533,7 @@ const FillBlankMode = {
 
 const ListeningMode = {
   render(items) {
+    const logEvent = studyRecorder();
     let withChinese = false;
     let rate = 0.9;
     let repeatMode = "off"; // "off" | "all" | "one"
@@ -634,27 +571,31 @@ const ListeningMode = {
         el("div", { className: "term", textContent: item.term }),
         el("div", { className: "divider" }),
         el("div", { className: "example", textContent: item.example }),
-        withChinese ? el("div", { className: "zh-meaning", textContent: item.zhMeaning }) : null
+        withChinese && item.zhMeaning ? el("div", { className: "zh-meaning", textContent: item.zhMeaning }) : null
       );
+      card.append(saveControl(item));
       nowPlaying.textContent = `Playing ${i + 1} / ${items.length}`;
     };
 
     /** Speak a single item end-to-end. One job: play one card. */
-    const playOne = async (item, i) => {
+    const playOne = async (item, i, runId) => {
       showItem(item, i);
       const startedAt = performance.now();
       await Speech.speak(item.term, "en-US", rate);
+      if (runId !== Speech.runId) return;
       await Speech.speak(item.example, "en-US", rate);
+      if (runId !== Speech.runId) return;
       if (withChinese) {
         await Speech.wait(250);
+        if (runId !== Speech.runId) return;
         await Speech.speak(item.zhMeaning, "zh-TW", rate);
       }
-      // Log after the audio finishes, with how long it actually took — a play
-      // cut short by ⏹ is still real listening time.
+      if (runId !== Speech.runId) return;
+      // Only the active run can record completed audio.
       logEvent({
         mode: "listening",
         kind: "play",
-        term: item.term,
+        item,
         ms: performance.now() - startedAt,
       });
       await Speech.wait(600);
@@ -670,16 +611,18 @@ const ListeningMode = {
 
     const run = async () => {
       Speech.start();
+      const runId = Speech.runId;
       startBtn.disabled = true;
       stopBtn.disabled = false;
       let i = 0;
-      while (!Speech.cancelled) {
-        await playOne(items[i], i);
-        if (Speech.cancelled) break;
+      while (!Speech.cancelled && runId === Speech.runId) {
+        await playOne(items[i], i, runId);
+        if (Speech.cancelled || runId !== Speech.runId) break;
         const next = nextIndex(i);
         if (next === null) break;
         i = next;
       }
+      if (runId !== Speech.runId) return;
       nowPlaying.textContent = Speech.cancelled ? "Stopped." : "Done ✓";
       startBtn.disabled = false;
       stopBtn.disabled = true;
@@ -703,6 +646,7 @@ const ListeningMode = {
 
 const ShadowingMode = {
   render(items) {
+    const logEvent = studyRecorder();
     let repeats = 2;
     let gap = 2500; // ms of silence for the learner to repeat
 
@@ -731,10 +675,11 @@ const ShadowingMode = {
 
     const run = async () => {
       Speech.start();
+      const runId = Speech.runId;
       startBtn.disabled = true;
       stopBtn.disabled = false;
       for (let i = 0; i < items.length; i++) {
-        if (Speech.cancelled) break;
+        if (Speech.cancelled || runId !== Speech.runId) break;
         const item = items[i];
         const phrase = item.example || item.term;
         card.replaceChildren(
@@ -742,22 +687,26 @@ const ShadowingMode = {
           el("div", { className: "divider" }),
           el("div", { className: "example", textContent: phrase })
         );
+        card.append(saveControl(item));
         for (let r = 0; r < repeats; r++) {
-          if (Speech.cancelled) break;
+          if (Speech.cancelled || runId !== Speech.runId) break;
           nowPlaying.textContent = `Listen (${i + 1}/${items.length})…`;
           const startedAt = performance.now();
           await Speech.speak(phrase, "en-US", 0.9);
+          if (runId !== Speech.runId) break;
           nowPlaying.textContent = "🗣️ Your turn — repeat aloud!";
           await Speech.wait(gap);
+          if (runId !== Speech.runId) break;
           // One event per repetition: shadowing 3× is three times the practice.
           logEvent({
             mode: "shadowing",
             kind: "play",
-            term: item.term,
+            item,
             ms: performance.now() - startedAt,
           });
         }
       }
+      if (runId !== Speech.runId) return;
       nowPlaying.textContent = Speech.cancelled ? "Stopped." : "Done ✓";
       startBtn.disabled = false;
       stopBtn.disabled = true;
@@ -780,6 +729,12 @@ const ShadowingMode = {
 // ---------------------------------------------------------------------------
 
 const REVIEW_DECK_ID = "__review__";
+const FAVORITES_DECK_ID = "__favorites__";
+
+function saveControl(item) {
+  const deck = router.manifest?.decks.find((entry) => entry.file === router.deckId);
+  return favoriteControl(item, deck ? { sourceDeck: deck.file, sourceLabel: `${deck.date} · ${deck.label}` } : {});
+}
 
 const MODES = {
   flashcard: FlashcardMode,
@@ -795,25 +750,37 @@ const router = {
   deckId: null,
   mode: "flashcard",
 
-  async setDeck(deckId) {
+  request: 0,
+  render: 0,
+  async setDeck(deckId, selection = null) {
+    const request = ++this.request;
+    this.render++;
     this.deckId = deckId;
+    this.items = [];
+    clearStage();
     setStatus("Loading deck…");
-    try {
-      if (deckId === REVIEW_DECK_ID) {
-        // Derived server-side from the answer history: every term whose most
-        // recent answer was wrong, hardest first. Nothing to keep in sync.
-        this.items = (await window.StudyLog?.fetchReviewDeck()) ?? [];
-      } else {
-        const deck = this.manifest.decks.find((d) => d.file === deckId);
-        this.items = deck ? await loadDeck(deck.file) : [];
-      }
-    } catch (err) {
-      setStatus(`Could not load deck: ${err.message}`);
-      return;
-    }
     document.getElementById("deck-select").value = deckId;
-    noteDeck();
-    this.renderMode();
+    try {
+      let items;
+      if (deckId === FAVORITES_DECK_ID) {
+        items = selection ?? await favorites.load();
+      } else if (deckId === REVIEW_DECK_ID) {
+        await StudyLog.flush();
+        items = await StudyLog.fetchReviewDeck();
+      } else {
+        const deck = this.manifest?.decks.find((entry) => entry.file === deckId);
+        items = deck ? (await loadDeck(deck.file)).map((item) => ({
+          ...item, sourceDeck: deck.file, sourceLabel: `${deck.date} · ${deck.label}`,
+        })) : [];
+      }
+      if (request !== this.request) return;
+      this.items = items;
+      this.renderMode();
+    } catch (err) {
+      if (request !== this.request) return;
+      setStatus(`Could not load deck: ${err.message}`);
+      updateFooter();
+    }
   },
 
   /** Switch drill. `paint` is false during boot, where setDeck renders next. */
@@ -826,6 +793,7 @@ const router = {
   },
 
   renderMode() {
+    this.render++;
     clearStage();
     if (!this.items.length) {
       stage.append(
@@ -833,7 +801,7 @@ const router = {
           className: "status",
           textContent: this.deckId !== REVIEW_DECK_ID
             ? "This deck is empty."
-            : window.StudyLog?.active
+            : StudyLog.active
               ? "No mistakes to review — take a quiz first. 🎉"
               : "Sign in using the account button in the header to keep a review deck.",
         })
@@ -841,7 +809,21 @@ const router = {
       updateFooter();
       return;
     }
-    MODES[this.mode].render(this.items);
+    let eligible = eligibleItems(this.items, this.mode);
+    if (this.mode === "quiz" || this.mode === "fill") {
+      eligible = eligible.filter((item) => answerChoices(eligible, item, this.mode).length > 0);
+      const skipped = this.items.length - eligible.length;
+      if (skipped) stage.append(el("p", { className: "hint", textContent: `${eligible.length} eligible · ${skipped} skipped (${this.mode === "quiz" ? "missing Chinese meaning or distinct answer choices" : "target not found in example or no distinct answer choices"}).` }));
+      if (!eligible.length) {
+        stage.append(el("p", { className: "status", textContent: "Not enough eligible sentences for this test." }));
+        const switchMode = el("button", { className: "btn", textContent: this.mode === "quiz" ? "Try Fill blanks" : "Use Flashcards" });
+        switchMode.onclick = () => this.setMode(this.mode === "quiz" ? "fill" : "flashcard");
+        stage.append(switchMode);
+        updateFooter();
+        return;
+      }
+    }
+    MODES[this.mode].render(eligible);
     updateFooter();
   },
 };
@@ -850,28 +832,13 @@ function setStatus(text) {
   stage.replaceChildren(el("p", { className: "status", textContent: text }));
 }
 
-/**
- * Register the current deck's display fields with the study log.
- *
- * Called once per deck load AND again when the session resolves: sb-client.js
- * awaits the network at module scope, so on a cold load app.js can reach the
- * first deck before `window.StudyLog` exists. Without the second call those
- * terms are never stored, and every mistake in that deck comes back as a bare
- * word with no meaning attached. The upsert makes the repeat harmless.
- */
-function noteDeck() {
-  if (router.deckId && router.deckId !== REVIEW_DECK_ID) {
-    window.StudyLog?.noteDeck(router.items, router.deckId);
-  }
-}
-
 function updateFooter() {
   const info = document.getElementById("footer-info");
-  if (!window.StudyLog?.active) {
+  if (!StudyLog.active) {
     info.textContent = `${router.items.length} item(s) · not signed in — progress is not saved`;
     return;
   }
-  const pending = window.StudyLog.pending;
+  const pending = StudyLog.pending;
   info.textContent =
     `${router.items.length} item(s) · recording progress ●` +
     (pending ? ` · ${pending} to sync` : "");
@@ -889,6 +856,7 @@ function populateDeckSelect(manifest) {
       el("option", { value: deck.file, textContent: `${deck.date} · ${deck.label}` })
     );
   }
+  select.append(el("option", { value: FAVORITES_DECK_ID, textContent: "★ My favorites" }));
   select.append(el("option", { value: REVIEW_DECK_ID, textContent: "★ Review mistakes" }));
   select.onchange = () => router.setDeck(select.value);
 }
@@ -909,12 +877,23 @@ function stepDeck(delta) {
 }
 
 async function main() {
-  // The study log resolves its session asynchronously, after this runs — so
-  // repaint the footer and re-register the deck's terms when it lands.
-  document.addEventListener("studylog:auth", () => {
-    noteDeck();
+  let accountId = currentUser()?.id;
+  onAuthChange((user) => {
+    if (accountId !== user?.id) {
+      accountId = user?.id;
+      router.request++;
+      router.render++;
+      clearStage();
+      if (router.deckId === FAVORITES_DECK_ID || router.deckId === REVIEW_DECK_ID) {
+        void router.setDeck(router.deckId);
+      } else if (router.items.length) router.renderMode();
+    }
     updateFooter();
   });
+  document.getElementById("manage-favorites").onclick = () => {
+    Speech.stop();
+    manageFavorites((items) => router.setDeck(FAVORITES_DECK_ID, items));
+  };
 
   // Wire mode buttons.
   for (const btn of document.querySelectorAll("#mode-nav button")) {
@@ -925,13 +904,10 @@ async function main() {
   document.getElementById("prev-deck").onclick = () => stepDeck(-1);
   document.getElementById("next-deck").onclick = () => stepDeck(1);
 
+  populateDeckSelect({ decks: [] });
   try {
     const manifest = await loadManifest();
     router.manifest = manifest;
-    if (!manifest.decks || manifest.decks.length === 0) {
-      setStatus("No vocab decks found yet.");
-      return;
-    }
     populateDeckSelect(manifest);
 
     // ?deck=&mode= lets the progress page link straight into a drill —
@@ -941,9 +917,10 @@ async function main() {
     const select = document.getElementById("deck-select");
     const known = [...select.options].some((o) => o.value === wanted);
     if (MODES[params.get("mode")]) router.setMode(params.get("mode"), false);
-    await router.setDeck(known ? wanted : manifest.decks[0].file);
+    await router.setDeck(known ? wanted : manifest.decks[0]?.file ?? FAVORITES_DECK_ID);
   } catch (err) {
-    setStatus(`Startup failed: ${err.message}`);
+    router.manifest = { decks: [] };
+    await router.setDeck(FAVORITES_DECK_ID);
   }
 }
 

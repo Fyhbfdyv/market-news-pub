@@ -49,6 +49,7 @@ const MODE_LABELS = {
 let range = "day";
 let mistakeTab = "open";
 let data = null; // { daily, monthly, yearly, mistakes, modes }
+let loadRequest = 0;
 
 // ---------------------------------------------------------------------------
 // Fetching
@@ -111,7 +112,7 @@ function summary(daily, mistakes) {
     tile("Today", todayCount, todayCount ? "answers + plays" : "nothing yet — go practise"),
     tile("Streak", `${streak.current}`, `days · best ${streak.longest}`, streak.current ? "accent-good" : ""),
     tile("Accuracy", rate === null ? "—" : `${rate}%`, `${all.correct} of ${all.answers} answers`),
-    tile("To fix", open, open ? "words still wrong" : "nothing outstanding", open ? "accent-bad" : "accent-good"),
+    tile("To fix", open, open ? "sentences still wrong" : "nothing outstanding", open ? "accent-bad" : "accent-good"),
   ]);
 }
 
@@ -243,9 +244,9 @@ function mistakes(rows) {
         textContent:
           mistakeTab === "open"
             ? rows.length
-              ? "Every word you missed has been answered correctly since. 🎉"
+              ? "Every sentence you missed has been answered correctly since. 🎉"
               : "No wrong answers recorded yet."
-            : "Nothing recovered yet — words move here once you get them right again.",
+            : "Nothing recovered yet — sentences move here once you get them right again.",
       })
     );
   }
@@ -363,6 +364,9 @@ function render() {
 }
 
 async function load() {
+  const request = ++loadRequest;
+  data = null;
+  render();
   if (!currentUser()) {
     data = null;
     render();
@@ -375,9 +379,12 @@ async function load() {
     // read: the events stay parked and the numbers below are still worth
     // showing.
     await StudyLog.flush().catch(() => {});
-    data = await fetchAll();
+    const result = await fetchAll();
+    if (request !== loadRequest) return;
+    data = result;
     render();
   } catch (err) {
+    if (request !== loadRequest) return;
     stage.replaceChildren(
       el("p", { className: "status", textContent: `Could not load progress: ${err.message}` })
     );

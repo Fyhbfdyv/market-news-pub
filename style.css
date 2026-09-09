@@ -20,6 +20,23 @@
   box-sizing: border-box;
 }
 
+.favorite-control { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 16px; }
+.favorite-error { color: #fca5a5; font-size: .9rem; overflow-wrap: anywhere; }
+.favorites-dialog { background: var(--bg); color: var(--text); border: 1px solid var(--surface-2); border-radius: var(--radius); width: min(780px, calc(100% - 24px)); max-height: 88dvh; padding: 20px; }
+.favorites-dialog::backdrop { background: #0009; }
+.favorites-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.favorites-dialog input[type="search"], .favorites-dialog textarea { width: 100%; font: inherit; color: var(--text); background: var(--surface); border: 1px solid var(--muted); border-radius: 6px; padding: 10px; }
+.favorites-dialog input[type="file"] { max-width: 100%; margin-bottom: 12px; }
+.favorites-dialog .actions { flex-wrap: wrap; justify-content: flex-start; margin: 12px 0; }
+.favorites-dialog .btn, .favorite-control .btn { flex: 0 1 auto; white-space: normal; }
+.favorite-row { display: flex; gap: 12px; border-bottom: 1px solid var(--surface-2); padding: 16px 0; }
+.favorite-row input { flex: 0 0 20px; align-self: flex-start; width: 20px; height: 20px; }
+.favorite-copy { min-width: 0; overflow-wrap: anywhere; }
+.favorite-copy p { margin: 8px 0; }
+.favorite-copy a { color: var(--accent); }
+.favorite-form label { display: grid; gap: 6px; margin: 12px 0; }
+.import-preview { max-height: 35vh; overflow: auto; overflow-wrap: anywhere; }
+
 body {
   margin: 0;
   min-height: 100vh;

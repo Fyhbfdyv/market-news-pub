@@ -39,13 +39,13 @@ import {
   currentUser,
   onAuthChange,
 } from "./sb-client.js";
+import { eventChunks } from "./study-core.js";
 import { localDate } from "./stats-core.js";
 
 const ENDPOINT = `${SUPABASE_URL}/rest/v1/study_events?on_conflict=user_id,client_id`;
 const OUTBOX_KEY = "vocab-trainer:outbox";
 const BATCH_SIZE = 25; // flush once this many events are waiting
 const FLUSH_MS = 15000; // …or this long after the first one
-const CHUNK = 50; // rows per request — keeps an unload POST inside the 64 KB keepalive cap
 const OUTBOX_CAP = 2000; // hard ceiling so a long outage cannot fill up storage
 const POST_TIMEOUT_MS = 15000; // a stalled request must not wedge the queue behind it
 
@@ -146,8 +146,7 @@ async function sendAll() {
   // re-attributed — row level security would reject them anyway.
   const mine = readOutbox().filter((r) => r.user_id === user.id);
 
-  for (let i = 0; i < mine.length; i += CHUNK) {
-    const chunk = mine.slice(i, i + CHUNK);
+  for (const chunk of eventChunks(mine)) {
     if (!(await post(chunk, false))) return;
     forget(chunk);
   }
@@ -186,10 +185,8 @@ function flushOnHide() {
   const user = currentUser();
   if (!user) return;
   park();
-  const chunk = readOutbox()
-    .filter((r) => r.user_id === user.id)
-    .slice(0, CHUNK);
-  if (!chunk.length) return;
+  const chunk = eventChunks(readOutbox().filter((r) => r.user_id === user.id))[0];
+  if (!chunk || new TextEncoder().encode(JSON.stringify(chunk)).length > 55000) return;
   void post(chunk, true).then((ok) => ok && forget(chunk));
 }
 
@@ -212,16 +209,16 @@ const StudyLog = {
   get pending() {
     const id = currentUser()?.id;
     if (!id) return 0;
-    return buffer.length + readOutbox().filter((r) => r.user_id === id).length;
+    return buffer.filter((r) => r.user_id === id).length + readOutbox().filter((r) => r.user_id === id).length;
   },
 
   /**
    * Queue one study event.
    *
-   * Args: deckId, mode, kind ('answer' | 'play' | 'reveal'), term, and the
+   * Args: deckId, mode, kind ('answer' | 'play' | 'reveal'), item snapshot, and the
    * optional `correct` / `chosen` / `ms` detail fields.
    */
-  log({ deckId, mode, kind, term, correct = null, chosen = null, ms = null }) {
+  log({ deckId, mode, kind, item, correct = null, chosen = null, ms = null }) {
     const user = currentUser();
     if (!user) return;
     buffer.push({
@@ -233,35 +230,17 @@ const StudyLog = {
       deck_id: deckId ?? "unknown",
       mode,
       kind,
-      term,
+      term: item.term,
+      example: item.example,
+      zh_meaning: item.zhMeaning ?? "",
+      zh_example: item.zhExample ?? "",
+      source_deck: item.sourceDeck ?? (deckId?.startsWith("__") ? null : deckId),
+      source_label: item.sourceLabel ?? null,
       correct,
       chosen,
       ms: ms == null ? null : Math.max(0, Math.round(ms)),
     });
     scheduleFlush();
-  },
-
-  /**
-   * Remember the display fields of a whole deck in one request.
-   *
-   * The review deck and the mistake list rebuild their cards from this table,
-   * so a term must be known here before it can come back. Called once per deck
-   * load rather than per question — 20 rows in one round-trip.
-   */
-  async noteDeck(items, deckId) {
-    if (!currentUser() || !items?.length) return;
-    const rows = items.map((item) => ({
-      term: item.term,
-      deck_id: deckId ?? "unknown",
-      example: item.example ?? "",
-      zh_meaning: item.zhMeaning ?? "",
-      zh_example: item.zhExample ?? "",
-      updated_at: new Date().toISOString(),
-    }));
-    const { error } = await client
-      .from("terms")
-      .upsert(rows, { onConflict: "user_id,term" });
-    if (error) console.warn("Study log: could not save deck terms —", error.message);
   },
 
   /**
@@ -274,17 +253,19 @@ const StudyLog = {
     if (!currentUser()) return [];
     const { data, error } = await client
       .from("v_review_deck")
-      .select("term, example, zh_meaning, zh_example")
+      .select("term, example, zh_meaning, zh_example, source_deck, source_label")
       .limit(limit);
     if (error) {
       console.warn("Study log: could not load review deck —", error.message);
-      return [];
+      throw error;
     }
     return data.map((row) => ({
       term: row.term,
       example: row.example,
       zhMeaning: row.zh_meaning,
       zhExample: row.zh_example,
+      sourceDeck: row.source_deck,
+      sourceLabel: row.source_label,
     }));
   },
 
@@ -296,11 +277,9 @@ const StudyLog = {
 // ---------------------------------------------------------------------------
 
 // Signing in is the moment a stranded outbox can finally be delivered. The
-// event lets pages that loaded before the session resolved (app.js runs first,
-// this module awaits the network) repaint without polling.
+// session subscription is shared with the trainer and progress page.
 onAuthChange((user) => {
   if (user) void flush();
-  document.dispatchEvent(new CustomEvent("studylog:auth", { detail: { user } }));
 });
 
 // Leaving the page is the last chance to save the current run. Both events are
@@ -311,9 +290,5 @@ window.addEventListener("pagehide", flushOnHide);
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "hidden") flushOnHide();
 });
-
-// app.js is a classic script and cannot import a module, so the API is also
-// hung off `window` — the same bridge voice-prefs.js uses.
-window.StudyLog = StudyLog;
 
 export default StudyLog;

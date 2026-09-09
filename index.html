@@ -31,6 +31,7 @@
           <button id="next-deck" class="btn-ghost nav-arrow" title="Older deck">›</button>
         </div>
       </label>
+      <button id="manage-favorites" class="btn" type="button">Manage favorites</button>
       <nav class="modes" id="mode-nav">
         <button data-mode="flashcard" class="active">Flashcard</button>
         <button data-mode="quiz">Quiz</button>
@@ -50,16 +51,12 @@
     <span id="footer-info"></span>
   </footer>
 
-  <!-- Study log. The vendored Supabase SDK is a classic script (it defines
-       window.supabase), which deferred module scripts can then build on.
-       study-log.js publishes window.StudyLog; app.js calls it defensively, so
-       the trainer still works if any of this fails to load. -->
+  <!-- The SDK loads before app.js imports the shared session and study log. -->
   <script src="./supabase.min.js" defer></script>
-  <script type="module" src="./study-log.js"></script>
 
   <!-- Shared voice settings (injects the ⚙ panel); load before app.js so
        Speech.voiceFor can read the user's choice. -->
   <script src="./voice-prefs.js" defer></script>
-  <script src="./app.js" defer></script>
+  <script type="module" src="./app.js"></script>
 </body>
 </html>
