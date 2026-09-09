@@ -60,10 +60,14 @@ export function manageFavorites(onPractice) {
   dialog.setAttribute("aria-labelledby", "favorites-title");
   const message = node("p", { className: "favorite-error" });
   message.setAttribute("role", "alert");
-  const content = node("div");
-  const close = button("Close", () => dialog.close());
+  const content = node("div", { className: "favorites-content" });
+  const close = button("×", () => dialog.close());
+  close.className = "btn favorites-close";
+  close.setAttribute("aria-label", "Close");
+  close.title = "Close";
   dialog.append(node("div", { className: "favorites-heading" }, [
-    node("h2", { id: "favorites-title", textContent: "My favorites" }), close,
+    node("div", {}, [node("h2", { id: "favorites-title", textContent: "My favorites" }),
+      node("p", { className: "favorites-subtitle", textContent: "Sentences worth coming back to." })]), close,
   ]), message, content);
   document.body.append(dialog);
   dialog.addEventListener("close", () => dialog.remove());
@@ -93,12 +97,20 @@ export function manageFavorites(onPractice) {
     });
     const all = button("Practice all", () => { dialog.close(); onPractice([...favorites.items]); });
     all.disabled = !favorites.items.length;
+    practice.classList.add("btn-primary");
+    all.classList.add("btn-ghost");
+    const count = node("span", { className: "favorites-count" });
+    count.setAttribute("aria-live", "polite");
     function draw() {
       list.replaceChildren();
       const shown = favorites.items.filter((item) =>
         [item.term, item.example, item.zhMeaning, item.zhExample].join(" ").toLowerCase().includes(query.toLowerCase()));
       practice.textContent = `Practice selected (${selected.size})`;
       practice.disabled = !selected.size;
+      practice.hidden = !selected.size;
+      all.classList.toggle("btn-primary", !selected.size);
+      all.classList.toggle("btn-ghost", Boolean(selected.size));
+      count.textContent = `${shown.length} sentence${shown.length === 1 ? "" : "s"}${selected.size ? ` · ${selected.size} selected` : ""}`;
       for (const item of shown) {
         const check = node("input", { type: "checkbox", checked: selected.has(item.id) });
         check.setAttribute("aria-label", `Select ${item.term}: ${item.example}`);
@@ -109,32 +121,36 @@ export function manageFavorites(onPractice) {
         list.append(node("article", { className: "favorite-row" }, [
           check,
           node("div", { className: "favorite-copy" }, [
-            node("strong", { textContent: item.term }), node("p", { textContent: item.example }),
-            item.zhMeaning ? node("p", { textContent: item.zhMeaning }) : null,
-            item.zhExample ? node("p", { textContent: item.zhExample }) : null,
-            node("small", {}, [source]),
-            node("div", { className: "actions" }, [
+            node("div", { className: "favorite-term-line" }, [node("strong", { textContent: item.term }),
+              item.zhMeaning ? node("span", { className: "favorite-translation", textContent: item.zhMeaning }) : null]),
+            node("p", { className: "favorite-example", textContent: item.example }),
+            item.zhExample ? node("p", { className: "favorite-translation", textContent: item.zhExample }) : null,
+            node("div", { className: "favorite-meta" }, [node("small", {}, [source]),
+            node("div", { className: "favorite-row-actions" }, [
               button("Edit", () => editor(item)),
               button("Delete", () => {
                 if (!confirm(`Remove “${item.term}” from favorites? Study history will be kept.`)) return;
                 void action(async () => { await favorites.remove(item.id); selected.delete(item.id); listing(); });
               }),
-            ]),
+            ]),]),
           ]),
         ]));
       }
       if (!shown.length) list.append(node("p", { textContent: favorites.items.length ? "No matching sentences." : "No favorites yet. Save a daily sentence or add your own." }));
     }
     search.oninput = () => { query = search.value; draw(); };
-    content.replaceChildren(node("div", { className: "actions" }, [
+    content.replaceChildren(node("div", { className: "favorites-toolbar" }, [search,
       button("Add sentence", () => editor()), button("Import text / file", importer),
-      practice, all,
+    ]), node("div", { className: "favorites-selection" }, [count, node("div", {}, [
       button("Select matching", () => {
         favorites.items.filter((item) => [item.term, item.example, item.zhMeaning, item.zhExample].join(" ").toLowerCase().includes(query.toLowerCase())).forEach((item) => selected.add(item.id));
         draw();
       }),
       button("Clear selection", () => { selected.clear(); draw(); }),
-    ]), search, list);
+    ])]), list, node("div", { className: "favorites-footer" }, [
+      node("span", { className: "favorites-count", textContent: "Select sentences to practice." }),
+      node("div", { className: "favorites-practice" }, [all, practice]),
+    ]));
     draw();
   }
   function editor(item = null) {
@@ -159,7 +175,10 @@ export function manageFavorites(onPractice) {
       }
       void action(async () => { await favorites.save([entry], item?.id); listing(); });
     };
-    content.replaceChildren(form);
+    content.replaceChildren(node("div", { className: "favorites-view-heading" }, [
+      node("h3", { textContent: item ? "Edit sentence" : "Add a sentence" }),
+      node("p", { textContent: "English first. Add Chinese translations if you like." }),
+    ]), form);
   }
   function importer() {
     message.textContent = "";
@@ -185,7 +204,10 @@ export function manageFavorites(onPractice) {
       input.value = await picked.text();
     });
     content.replaceChildren(
-      node("p", { textContent: "One sentence per line: word; English example; Chinese meaning (optional); Chinese example (optional). Use ； inside fields. Up to 500 new sentences per import." }),
+      node("div", { className: "favorites-view-heading" }, [node("h3", { textContent: "Import sentences" }),
+        node("p", { textContent: "Paste your list or choose a text file. Preview before saving." })]),
+      node("p", { className: "favorites-format", textContent: "word; English example; 中文意思（選填）; 中文例句（選填）" }),
+      node("p", { className: "favorites-count", textContent: "One per line · Up to 500 sentences · Use ； inside a field" }),
       file, input,
       node("div", { className: "actions" }, [button("Preview", () => {
         result = previewImport(input.value, favorites.items);
