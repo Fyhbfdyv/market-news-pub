@@ -9,9 +9,11 @@
  * with `## Cause` / `## Positive Impact` / `## Negative Impact` sections. We
  * lean on that structure twice: to build a table of contents (from the `# `
  * headings) and to colour-code the impact sections.
+ *
+ * Narration is Safari's own "Listen to Page" on listen.html, linked per report.
  */
 
-import { speaker, speechSupported } from "./voice-prefs.js";
+import { listenHref } from "./listen-core.js";
 
 const DATA_BASE = "./summaries/";
 
@@ -75,87 +77,9 @@ function renderReport(markdown, container) {
   container.querySelectorAll("h2").forEach((h2) => {
     const cls = sectionClass(h2.textContent);
     if (cls) h2.classList.add(cls);
-    // Add the "Listen" button *after* reading the text, so the button label
-    // never leaks into the section we narrate.
-    if (speech.supported) addSpeakButton(h2);
   });
 
   return toc;
-}
-
-// ---------------------------------------------------------------------------
-// Text-to-speech: read a theme aloud with the browser's Web Speech API
-// ---------------------------------------------------------------------------
-
-// All speaking goes through the shared speaker (voice-prefs.js). We keep a
-// tiny bit of module state: which button is currently "playing", so we can
-// restore its label and never let two themes talk over each other.
-const SPEAK_IDLE = "🔊 Listen";
-const SPEAK_PLAYING = "⏹ Stop";
-
-const speech = {
-  supported: speechSupported,
-  activeButton: null,
-};
-
-/** Restore the active button to its idle state and forget it. */
-function resetSpeechButton() {
-  if (!speech.activeButton) return;
-  speech.activeButton.textContent = SPEAK_IDLE;
-  speech.activeButton.classList.remove("speaking");
-  speech.activeButton = null;
-}
-
-/** Stop any narration in progress (used when switching reports). */
-function stopSpeech() {
-  speaker.stop();
-  resetSpeechButton();
-}
-
-/**
- * Toggle narration for one theme.
- *
- * If `button` is already the one playing, we stop. Otherwise the shared
- * speaker replaces whatever was playing with this text.
- */
-async function toggleSpeech(button, text) {
-  const wasActive = speech.activeButton === button;
-  stopSpeech(); // stops current narration and resets the old button
-  if (wasActive) return; // a second click on the same button = stop
-
-  speech.activeButton = button;
-  button.textContent = SPEAK_PLAYING;
-  button.classList.add("speaking");
-  await speaker.speak(text, { lang: "en-US" });
-  // A newer click may have switched buttons meanwhile: only reset our own.
-  if (speech.activeButton === button) resetSpeechButton();
-}
-
-/**
- * Collect the readable text of a section: its heading plus every sibling
- * element up to (but not including) the next heading of any level. Called before
- * the button is appended, so the button's own label is never read aloud.
- */
-function collectSectionText(heading) {
-  const parts = [heading.textContent];
-  let node = heading.nextElementSibling;
-  while (node && node.tagName !== "H1" && node.tagName !== "H2") {
-    parts.push(node.textContent);
-    node = node.nextElementSibling;
-  }
-  return parts.join(". ");
-}
-
-/** Append a "Listen" button to a section heading. */
-function addSpeakButton(heading) {
-  const text = collectSectionText(heading);
-  const button = document.createElement("button");
-  button.type = "button";
-  button.className = "speak-btn btn-ghost";
-  button.textContent = SPEAK_IDLE;
-  button.setAttribute("aria-label", `Listen to ${heading.textContent}`);
-  button.onclick = () => toggleSpeech(button, text);
-  heading.append(button);
 }
 
 function renderToc(entries, tocEl) {
@@ -185,6 +109,7 @@ function renderToc(entries, tocEl) {
 const reportEl = document.getElementById("report");
 const tocEl = document.getElementById("toc");
 const selectEl = document.getElementById("report-select");
+const listenLink = document.getElementById("listen-link");
 
 const state = {
   reports: [], // all reports from the manifest (newest first)
@@ -216,6 +141,7 @@ function populateSelect() {
     show(target);
   } else {
     state.current = null;
+    listenLink.hidden = true;
     reportEl.replaceChildren(
       Object.assign(document.createElement("p"), {
         className: "status",
@@ -227,8 +153,9 @@ function populateSelect() {
 }
 
 async function show(filename) {
-  stopSpeech(); // don't keep reading the previous report aloud
   state.current = filename;
+  listenLink.href = listenHref({ news: filename });
+  listenLink.hidden = false;
   reportEl.replaceChildren(
     Object.assign(document.createElement("p"), {
       className: "status",

@@ -298,6 +298,15 @@ main#stage {
   border: 1px solid var(--surface-2);
 }
 
+/* ---- Link to the Safari "Listen to Page" script ---- */
+.listen-link {
+  flex: none;
+  padding: 8px 14px;
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
 .btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;

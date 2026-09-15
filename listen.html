@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Market News · Listen</title>
+  <!-- A Reader-first page: Safari's "Listen to Page" reads only the <article>,
+       so it holds nothing but the title and plain paragraphs. -->
+  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="./listen.css" />
+</head>
+<body>
+  <main class="listen-page">
+    <a id="back-link" class="listen-back" href="./index.html">← Back</a>
+    <article id="script" class="listen-script">
+      <p class="status">Loading…</p>
+    </article>
+  </main>
+  <script type="module" src="./listen.js"></script>
+</body>
+</html>

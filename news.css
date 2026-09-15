@@ -81,38 +81,11 @@ main#layout {
   scroll-margin-top: 96px; /* so TOC jumps clear the sticky header */
 }
 
-/* ---- Text-to-speech button (one per theme) ---- */
-.speak-btn {
-  margin-left: auto; /* push to the right edge of the heading */
-  flex-shrink: 0;
-  color: var(--text);
-  border-radius: 8px;
-  padding: 4px 10px;
-  cursor: pointer;
-  font-size: 0.78rem;
-  font-weight: 600;
-  white-space: nowrap;
-  transition: background 0.15s, border-color 0.15s;
-}
-
-.speak-btn:hover {
-  border-color: var(--accent);
-}
-
-.speak-btn.speaking {
-  color: var(--accent);
-  border-color: var(--accent);
-}
-
 .markdown-body h1:first-child {
   margin-top: 14px;
 }
 
-/* Flex lets the per-section "Listen" button sit at the far right of the row. */
 .markdown-body h2 {
-  display: flex;
-  align-items: center;
-  gap: 12px;
   font-size: 1.05rem;
   margin: 22px 0 8px;
   padding-left: 12px;

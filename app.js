@@ -18,6 +18,7 @@ import { currentUser, onAuthChange } from "./sb-client.js";
 import { favorites, favoriteControl, manageFavorites } from "./favorites.js";
 import { parseVocab, termPattern, eligibleItems, answerChoices } from "./vocab-core.js";
 import { speaker } from "./voice-prefs.js";
+import { DEFAULT_REPEAT, REPEAT_CHOICES, listenHref } from "./listen-core.js";
 
 const DATA_BASE = "./summaries/";
 
@@ -507,6 +508,27 @@ const FillBlankMode = {
 // Mode: Listening cycle (auto-play, EN-only or EN+ZH)
 // ---------------------------------------------------------------------------
 
+/**
+ * Link a daily deck to its English-only Safari "Listen to Page" script, which
+ * plays in the Siri voice and keeps going on the lock screen. Favorites and
+ * mistakes have no published file, so they get no link.
+ */
+function safariListenRow(deckFile) {
+  const repeat = el("select", { title: "Times to repeat the whole deck" });
+  for (const n of REPEAT_CHOICES) {
+    repeat.append(el("option", { value: String(n), textContent: `${n}×`, selected: n === DEFAULT_REPEAT }));
+  }
+  const link = el("a", { className: "btn btn-ghost listen-link", textContent: "🎧 Listen in Safari" });
+  const sync = () => (link.href = listenHref({ vocab: deckFile, repeat: repeat.value }));
+  repeat.onchange = sync;
+  sync();
+  return el("div", { className: "toggle-row" }, [
+    el("label", {}, ["Safari script ", repeat]),
+    link,
+    el("span", { className: "hint", textContent: "Then tap aA → Listen to Page" }),
+  ]);
+}
+
 const ListeningMode = {
   render(items) {
     const logEvent = studyRecorder();
@@ -612,7 +634,14 @@ const ListeningMode = {
       stopBtn.disabled = true;
     };
 
-    stage.append(toggles, nowPlaying, card, el("div", { className: "actions" }, [startBtn, stopBtn]));
+    const deck = router.manifest?.decks.find((entry) => entry.file === router.deckId);
+    stage.append(
+      toggles,
+      nowPlaying,
+      card,
+      el("div", { className: "actions" }, [startBtn, stopBtn]),
+      deck ? safariListenRow(deck.file) : null
+    );
   },
 };
 
@@ -696,7 +725,14 @@ const ShadowingMode = {
       stopBtn.disabled = true;
     };
 
-    stage.append(toggles, nowPlaying, card, el("div", { className: "actions" }, [startBtn, stopBtn]));
+    const deck = router.manifest?.decks.find((entry) => entry.file === router.deckId);
+    stage.append(
+      toggles,
+      nowPlaying,
+      card,
+      el("div", { className: "actions" }, [startBtn, stopBtn]),
+      deck ? safariListenRow(deck.file) : null
+    );
   },
 };
 
