@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vocabulary · Bloomberg Daybreak · August 11, 2026</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../listen.css" />
+</head>
+<body>
+  <main class="listen-page">
+    <a class="listen-back" href="../index.html">← Back</a>
+    <article class="listen-script">
+<h1>Vocabulary · Bloomberg Daybreak · August 11, 2026</h1>
+<div class="listen-round">
+<p><strong class="round-lead">Round 1.</strong> Harden their positions. The US and Iran appear to be hardening their positions.</p>
+<p>Hold someone responsible. Iran should be held responsible for the resulting deaths and damages.</p>
+<p>Clear the way for. A Supreme Court ruling cleared the way for Alabama to use its congressional map.</p>
+<p>Roll back. President Trump has revived his effort to roll back the vaccination schedule.</p>
+<p>Put their necks on the line. More companies are putting their necks on the line to support the financing.</p>
+<p>Take on a more central role. Intel aims to take on a more central role in the AI boom.</p>
+<p>Strike a deal. Anthropic has struck a $9 billion deal with Riot Platforms.</p>
+<p>Front-load the demands. Iran has been front-loading its demands as conditions for reopening the strait.</p>
+<p>Match it in kind. Trump has tried to match Iran’s demands in kind.</p>
+<p>Hold up its end of the deal. Iran says the US is not holding up its end of the interim peace deal.</p>
+</div>
+    </article>
+<script>
+  (function () {
+    var choices = [1, 3, 5, 10];
+    var n = Number(new URLSearchParams(location.search).get("repeat"));
+    var repeat = choices.indexOf(n) >= 0 ? n : 5;
+    var round = document.querySelector(".listen-round");
+    for (var r = 2; round && r <= repeat; r++) {
+      var copy = round.cloneNode(true);
+      copy.querySelector(".round-lead").textContent = "Round " + r + ".";
+      round.parentNode.appendChild(copy);
+    }
+  })();
+</script>
+  </main>
+</body>
+</html>

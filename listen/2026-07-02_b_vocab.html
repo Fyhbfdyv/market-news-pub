@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vocabulary · Bloomberg Daybreak · July 2, 2026</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../listen.css" />
+</head>
+<body>
+  <main class="listen-page">
+    <a class="listen-back" href="../index.html">← Back</a>
+    <article class="listen-script">
+<h1>Vocabulary · Bloomberg Daybreak · July 2, 2026</h1>
+<div class="listen-round">
+<p><strong class="round-lead">Round 1.</strong> Hailing progress. President Trump is hailing progress in indirect discussions.</p>
+<p>Move past. Both countries look to move past last week&#x27;s tit-for-tat strikes.</p>
+<p>Lasting peace. President Trump says he is aiming for lasting peace.</p>
+<p>Breakthroughs have been made. Trump is not specifying what breakthroughs have been made.</p>
+<p>Carried out. Russia carried out intense drone and missile strikes on Kyiv.</p>
+<p>Ramping up. The other major war overseas appears to be ramping up.</p>
+<p>Raised the prospect. Matthew Whitaker raised the prospect of a two-tier alliance.</p>
+<p>Ahead of. The remarks come ahead of a NATO summit in Turkey next week.</p>
+<p>In the interest of transparency. In the interest of transparency, Interactive Brokers advertises on Bloomberg Radio.</p>
+<p>Surprise to the upside. This report has managed to surprise to the upside month after month.</p>
+</div>
+    </article>
+<script>
+  (function () {
+    var choices = [1, 3, 5, 10];
+    var n = Number(new URLSearchParams(location.search).get("repeat"));
+    var repeat = choices.indexOf(n) >= 0 ? n : 5;
+    var round = document.querySelector(".listen-round");
+    for (var r = 2; round && r <= repeat; r++) {
+      var copy = round.cloneNode(true);
+      copy.querySelector(".round-lead").textContent = "Round " + r + ".";
+      round.parentNode.appendChild(copy);
+    }
+  })();
+</script>
+  </main>
+</body>
+</html>

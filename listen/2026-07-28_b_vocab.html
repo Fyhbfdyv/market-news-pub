@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vocabulary · Bloomberg Daybreak · July 28, 2026</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../listen.css" />
+</head>
+<body>
+  <main class="listen-page">
+    <a class="listen-back" href="../index.html">← Back</a>
+    <article class="listen-script">
+<h1>Vocabulary · Bloomberg Daybreak · July 28, 2026</h1>
+<div class="listen-round">
+<p><strong class="round-lead">Round 1.</strong> Hold off. The US held off attacks on Iran for three straight days.</p>
+<p>Reach an agreement. Oman and Iran are trying to reach an agreement.</p>
+<p>On the agenda. We will discuss all the issues on the agenda.</p>
+<p>Exit strategy. The president has no exit strategy in Iran.</p>
+<p>Balance of power. The election could affect the balance of power in the US House.</p>
+<p>Weigh down. The chip sell-off is weighing down markets this morning.</p>
+<p>Poised for. SK Hynix is poised for a profit surge.</p>
+<p>Forward guidance. The Fed made an aggressive move without any forward guidance.</p>
+<p>Behind closed doors. Most of this is taking place behind closed doors.</p>
+<p>Front and center. The nuclear issue has been front and center for many years.</p>
+</div>
+    </article>
+<script>
+  (function () {
+    var choices = [1, 3, 5, 10];
+    var n = Number(new URLSearchParams(location.search).get("repeat"));
+    var repeat = choices.indexOf(n) >= 0 ? n : 5;
+    var round = document.querySelector(".listen-round");
+    for (var r = 2; round && r <= repeat; r++) {
+      var copy = round.cloneNode(true);
+      copy.querySelector(".round-lead").textContent = "Round " + r + ".";
+      round.parentNode.appendChild(copy);
+    }
+  })();
+</script>
+  </main>
+</body>
+</html>

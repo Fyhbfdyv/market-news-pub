@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vocabulary · Bloomberg Daybreak · June 18, 2026</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../listen.css" />
+</head>
+<body>
+  <main class="listen-page">
+    <a class="listen-back" href="../index.html">← Back</a>
+    <article class="listen-script">
+<h1>Vocabulary · Bloomberg Daybreak · June 18, 2026</h1>
+<div class="listen-round">
+<p><strong class="round-lead">Round 1.</strong> Fall short of. The agreement falls short of verifiably dismantling Iran&#x27;s nuclear weapons program.</p>
+<p>The proof is in the pudding. The proof&#x27;s going to be in the pudding — whether the strait reopens or not.</p>
+<p>Shot across the bow. Rate hike expectations are a real shot across the bow to the market.</p>
+<p>Play it close to the vest. He&#x27;s playing it really close to the vest on policy.</p>
+<p>Hawkish tilt. It is a hawkish tilt from the committee.</p>
+<p>Make good on. The Iranians must make good on their promise to reopen the strait.</p>
+<p>At odds with. Rate hike signals are very much at odds with what the White House would like.</p>
+<p>Fire back. Trump fired back at critics, calling them jealous, bad, or stupid.</p>
+<p>Weigh in. It&#x27;s good to bring outside perspectives to weigh in.</p>
+<p>Cajole. The US has been cajoling Europeans to meet their defense budget promises for decades.</p>
+</div>
+    </article>
+<script>
+  (function () {
+    var choices = [1, 3, 5, 10];
+    var n = Number(new URLSearchParams(location.search).get("repeat"));
+    var repeat = choices.indexOf(n) >= 0 ? n : 5;
+    var round = document.querySelector(".listen-round");
+    for (var r = 2; round && r <= repeat; r++) {
+      var copy = round.cloneNode(true);
+      copy.querySelector(".round-lead").textContent = "Round " + r + ".";
+      round.parentNode.appendChild(copy);
+    }
+  })();
+</script>
+  </main>
+</body>
+</html>

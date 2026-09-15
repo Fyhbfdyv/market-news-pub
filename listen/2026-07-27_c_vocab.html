@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vocabulary · CNBC News · July 27, 2026</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../listen.css" />
+</head>
+<body>
+  <main class="listen-page">
+    <a class="listen-back" href="../index.html">← Back</a>
+    <article class="listen-script">
+<h1>Vocabulary · CNBC News · July 27, 2026</h1>
+<div class="listen-round">
+<p><strong class="round-lead">Round 1.</strong> Snag a seat. I wasn’t able to snag a seat at the screening.</p>
+<p>Appear to hold. The fragile pause in fighting appeared to hold.</p>
+<p>Give talks some space. The president paused the attacks to give talks some space.</p>
+<p>On a collision course. The two wars could be on a collision course.</p>
+<p>Catch up to. Distillation could help China catch up to the U.S.</p>
+<p>Push policymakers to avoid. Technology companies pushed policymakers to avoid premature restrictions.</p>
+<p>Hold off. Paramount may hold off until June 2027.</p>
+<p>Whichever comes first. The company will wait until June or the court rules, whichever comes first.</p>
+<p>End up raising. The delay could end up raising the price of the deal.</p>
+<p>Add up to. The additional fees could add up to roughly $1.7 billion.</p>
+</div>
+    </article>
+<script>
+  (function () {
+    var choices = [1, 3, 5, 10];
+    var n = Number(new URLSearchParams(location.search).get("repeat"));
+    var repeat = choices.indexOf(n) >= 0 ? n : 5;
+    var round = document.querySelector(".listen-round");
+    for (var r = 2; round && r <= repeat; r++) {
+      var copy = round.cloneNode(true);
+      copy.querySelector(".round-lead").textContent = "Round " + r + ".";
+      round.parentNode.appendChild(copy);
+    }
+  })();
+</script>
+  </main>
+</body>
+</html>

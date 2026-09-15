@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vocabulary · Bloomberg Daybreak · September 8, 2026</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../listen.css" />
+</head>
+<body>
+  <main class="listen-page">
+    <a class="listen-back" href="../index.html">← Back</a>
+    <article class="listen-script">
+<h1>Vocabulary · Bloomberg Daybreak · September 8, 2026</h1>
+<div class="listen-round">
+<p><strong class="round-lead">Round 1.</strong> Keep things in perspective. Keep things in perspective: total trade is worth about a trillion dollars.</p>
+<p>The ball is in someone&#x27;s court. The ball is now in President Trump&#x27;s court.</p>
+<p>Return to the negotiating table. Their goal is to return to the negotiating table.</p>
+<p>Fall apart at the last minute. The deal fell apart at the last minute.</p>
+<p>Backfire on someone. Threatening a multinational company with tariffs can backfire on you.</p>
+<p>Make concessions. Both sides tried to force the other to make concessions.</p>
+<p>At a stalemate. The ground battles are at a stalemate.</p>
+<p>Put pressure on. This is putting pressure on the energy market.</p>
+<p>Non-negotiable. The governor said the name is non-negotiable.</p>
+<p>Stay up to date. Listen to Bloomberg News Now to stay up to date throughout the day.</p>
+</div>
+    </article>
+<script>
+  (function () {
+    var choices = [1, 3, 5, 10];
+    var n = Number(new URLSearchParams(location.search).get("repeat"));
+    var repeat = choices.indexOf(n) >= 0 ? n : 5;
+    var round = document.querySelector(".listen-round");
+    for (var r = 2; round && r <= repeat; r++) {
+      var copy = round.cloneNode(true);
+      copy.querySelector(".round-lead").textContent = "Round " + r + ".";
+      round.parentNode.appendChild(copy);
+    }
+  })();
+</script>
+  </main>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vocabulary · Bloomberg Daybreak · June 2, 2026</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../listen.css" />
+</head>
+<body>
+  <main class="listen-page">
+    <a class="listen-back" href="../index.html">← Back</a>
+    <article class="listen-script">
+<h1>Vocabulary · Bloomberg Daybreak · June 2, 2026</h1>
+<div class="listen-round">
+<p><strong class="round-lead">Round 1.</strong> Sticking point. Lebanon emerged as a sticking point in the wider negotiations.</p>
+<p>On track. Efforts to keep a peace deal on track have turned complicated.</p>
+<p>Back channel. Iran cut off its back channel talks with the United States.</p>
+<p>Bipartisan backlash. Bipartisan backlash pushed the Trump administration to scrap its plans.</p>
+<p>Slush fund. Democrats and Republicans called this a slush fund for Trump&#x27;s allies.</p>
+<p>Chilling impact. The conviction may have a chilling impact on short sellers.</p>
+<p>Blowout results. HPE&#x27;s earnings follow blowout results from competitor Dell Technologies.</p>
+<p>On the flip side. On the flip side, shares of Abivabax are plunging almost 30%.</p>
+<p>Hold up. GOP senators threatened to hold up an immigration enforcement package.</p>
+<p>Clear a path for. The EU vote clears a path for final ratification of the trade deal.</p>
+</div>
+    </article>
+<script>
+  (function () {
+    var choices = [1, 3, 5, 10];
+    var n = Number(new URLSearchParams(location.search).get("repeat"));
+    var repeat = choices.indexOf(n) >= 0 ? n : 5;
+    var round = document.querySelector(".listen-round");
+    for (var r = 2; round && r <= repeat; r++) {
+      var copy = round.cloneNode(true);
+      copy.querySelector(".round-lead").textContent = "Round " + r + ".";
+      round.parentNode.appendChild(copy);
+    }
+  })();
+</script>
+  </main>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vocabulary · Bloomberg Daybreak · June 15, 2026</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../listen.css" />
+</head>
+<body>
+  <main class="listen-page">
+    <a class="listen-back" href="../index.html">← Back</a>
+    <article class="listen-script">
+<h1>Vocabulary · Bloomberg Daybreak · June 15, 2026</h1>
+<div class="listen-round">
+<p><strong class="round-lead">Round 1.</strong> Interim deal. The US and Iran have reached an interim deal.</p>
+<p>Put on hold. The deal puts more than three months of war on hold.</p>
+<p>Pay for performance. Any sanctions relief will be what&#x27;s called pay for performance.</p>
+<p>Upfront cash. There will not be upfront cash as in the Obama deal.</p>
+<p>Bump in the road. Trump&#x27;s tariff threat is a real bump in the road for Macron.</p>
+<p>No-win situation. The new Fed chairman is in a no-win situation.</p>
+<p>Crackdown on. There&#x27;s a crackdown on social media in Europe.</p>
+<p>Flesh out. How do you flesh out the Europeans&#x27; military role after the ceasefire?</p>
+<p>Nitty-gritty. All the nitty-gritty will be discussed at the G7.</p>
+<p>Get on side. They are trying to get the president on side on the Ukraine issue.</p>
+</div>
+    </article>
+<script>
+  (function () {
+    var choices = [1, 3, 5, 10];
+    var n = Number(new URLSearchParams(location.search).get("repeat"));
+    var repeat = choices.indexOf(n) >= 0 ? n : 5;
+    var round = document.querySelector(".listen-round");
+    for (var r = 2; round && r <= repeat; r++) {
+      var copy = round.cloneNode(true);
+      copy.querySelector(".round-lead").textContent = "Round " + r + ".";
+      round.parentNode.appendChild(copy);
+    }
+  })();
+</script>
+  </main>
+</body>
+</html>

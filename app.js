@@ -18,7 +18,6 @@ import { currentUser, onAuthChange } from "./sb-client.js";
 import { favorites, favoriteControl, manageFavorites } from "./favorites.js";
 import { parseVocab, termPattern, eligibleItems, answerChoices } from "./vocab-core.js";
 import { speaker } from "./voice-prefs.js";
-import { DEFAULT_REPEAT, REPEAT_CHOICES, listenHref } from "./listen-core.js";
 
 const DATA_BASE = "./summaries/";
 
@@ -510,16 +509,18 @@ const FillBlankMode = {
 
 /**
  * Link a daily deck to its English-only Safari "Listen to Page" script, which
- * plays in the Siri voice and keeps going on the lock screen. Favorites and
+ * plays in the Siri voice and keeps going on the lock screen. `sync` builds the
+ * static page (listen.py), which accepts the same repeat choices. Favorites and
  * mistakes have no published file, so they get no link.
  */
 function safariListenRow(deckFile) {
   const repeat = el("select", { title: "Times to repeat the whole deck" });
-  for (const n of REPEAT_CHOICES) {
-    repeat.append(el("option", { value: String(n), textContent: `${n}×`, selected: n === DEFAULT_REPEAT }));
+  for (const n of [1, 3, 5, 10]) {
+    repeat.append(el("option", { value: String(n), textContent: `${n}×`, selected: n === 5 }));
   }
+  const page = `./listen/${deckFile.replace(/\.md$/, ".html")}`;
   const link = el("a", { className: "btn btn-ghost listen-link", textContent: "🎧 Listen in Safari" });
-  const sync = () => (link.href = listenHref({ vocab: deckFile, repeat: repeat.value }));
+  const sync = () => (link.href = `${page}?repeat=${repeat.value}`);
   repeat.onchange = sync;
   sync();
   return el("div", { className: "toggle-row" }, [

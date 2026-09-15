@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vocabulary · Bloomberg Daybreak · July 15, 2026</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../listen.css" />
+</head>
+<body>
+  <main class="listen-page">
+    <a class="listen-back" href="../index.html">← Back</a>
+    <article class="listen-script">
+<h1>Vocabulary · Bloomberg Daybreak · July 15, 2026</h1>
+<div class="listen-round">
+<p><strong class="round-lead">Round 1.</strong> Back off plans. President Trump backed off plans for a 20% charge on cargo shipments.</p>
+<p>Take part. He did not specify which countries would be taking part.</p>
+<p>Play out. The investigation into Guerrero&#x27;s death still needs to play out.</p>
+<p>Be held accountable. Officers who acted illegally should be held accountable.</p>
+<p>Wrap up. Kevin Warsh returned to Capitol Hill to wrap up his testimony.</p>
+<p>On the heels of. Tech stocks rose on the heels of earnings from ASML.</p>
+<p>Fall short of estimates. IBM reported sales that fell short of estimates.</p>
+<p>On the verge of. SpaceX shares are on the verge of falling below their IPO price.</p>
+<p>Catch someone up to speed. Can you catch us up to speed on what has been happening?</p>
+<p>The rules of the road. Businesses want to know what the rules of the road are.</p>
+</div>
+    </article>
+<script>
+  (function () {
+    var choices = [1, 3, 5, 10];
+    var n = Number(new URLSearchParams(location.search).get("repeat"));
+    var repeat = choices.indexOf(n) >= 0 ? n : 5;
+    var round = document.querySelector(".listen-round");
+    for (var r = 2; round && r <= repeat; r++) {
+      var copy = round.cloneNode(true);
+      copy.querySelector(".round-lead").textContent = "Round " + r + ".";
+      round.parentNode.appendChild(copy);
+    }
+  })();
+</script>
+  </main>
+</body>
+</html>

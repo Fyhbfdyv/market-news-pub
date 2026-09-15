@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vocabulary · CNBC News · May 12, 2026</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../listen.css" />
+</head>
+<body>
+  <main class="listen-page">
+    <a class="listen-back" href="../index.html">← Back</a>
+    <article class="listen-script">
+<h1>Vocabulary · CNBC News · May 12, 2026</h1>
+<div class="listen-round">
+<p><strong class="round-lead">Round 1.</strong> Didn&#x27;t mince words. Trump didn&#x27;t mince words, calling Tehran&#x27;s proposal &quot;garbage.&quot;</p>
+<p>On life support. The ceasefire is on life support.</p>
+<p>Look past. Wall Street looked past conflict signs, focusing on the AI trade.</p>
+<p>At stake. Here&#x27;s what&#x27;s at stake for trade, Taiwan, and the Iran war.</p>
+<p>A swath of. Trump invited executives from a swath of major companies.</p>
+<p>Took the stand. Nadella took the stand in the ongoing OpenAI trial.</p>
+<p>In a bid to. GM is slashing IT jobs in a bid to cut costs.</p>
+<p>Unilaterally. Trump cannot unilaterally enact a gas tax holiday.</p>
+<p>Weighed on. Higher mortgage rates weighed on homebuyers.</p>
+<p>Upward pressure. Micron&#x27;s gains provided upward pressure for the broader market.</p>
+</div>
+    </article>
+<script>
+  (function () {
+    var choices = [1, 3, 5, 10];
+    var n = Number(new URLSearchParams(location.search).get("repeat"));
+    var repeat = choices.indexOf(n) >= 0 ? n : 5;
+    var round = document.querySelector(".listen-round");
+    for (var r = 2; round && r <= repeat; r++) {
+      var copy = round.cloneNode(true);
+      copy.querySelector(".round-lead").textContent = "Round " + r + ".";
+      round.parentNode.appendChild(copy);
+    }
+  })();
+</script>
+  </main>
+</body>
+</html>

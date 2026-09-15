@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vocabulary · CNBC News · May 4, 2026</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../listen.css" />
+</head>
+<body>
+  <main class="listen-page">
+    <a class="listen-back" href="../index.html">← Back</a>
+    <article class="listen-script">
+<h1>Vocabulary · CNBC News · May 4, 2026</h1>
+<div class="listen-round">
+<p><strong class="round-lead">Round 1.</strong> Felt inclined to. As a financial journalist, I felt inclined to root for Emerging Market.</p>
+<p>At the helm. The meeting drew smaller crowds without Buffett at the helm.</p>
+<p>Waning interest. Shorter lines were a sign of waning interest in the meeting.</p>
+<p>Plagued by. The airline was plagued by soaring costs and a failed merger.</p>
+<p>In a bid to. Other airlines capped fares in a bid to help stranded travelers.</p>
+<p>Did not elaborate. Trump said the U.S. would free the ships but did not elaborate.</p>
+<p>Put pressure on. The jump in oil prices put pressure on stocks.</p>
+<p>Amounted to. The second phase will determine whether the company&#x27;s actions amounted to a public nuisance.</p>
+<p>On board with. Many former Fed officials aren&#x27;t on board with Warsh&#x27;s views yet.</p>
+<p>Keeping an eye on. Here&#x27;s what we&#x27;re keeping an eye on this week.</p>
+</div>
+    </article>
+<script>
+  (function () {
+    var choices = [1, 3, 5, 10];
+    var n = Number(new URLSearchParams(location.search).get("repeat"));
+    var repeat = choices.indexOf(n) >= 0 ? n : 5;
+    var round = document.querySelector(".listen-round");
+    for (var r = 2; round && r <= repeat; r++) {
+      var copy = round.cloneNode(true);
+      copy.querySelector(".round-lead").textContent = "Round " + r + ".";
+      round.parentNode.appendChild(copy);
+    }
+  })();
+</script>
+  </main>
+</body>
+</html>

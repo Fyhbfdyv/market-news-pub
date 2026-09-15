@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vocabulary · CNBC News · July 30, 2026</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../listen.css" />
+</head>
+<body>
+  <main class="listen-page">
+    <a class="listen-back" href="../index.html">← Back</a>
+    <article class="listen-script">
+<h1>Vocabulary · CNBC News · July 30, 2026</h1>
+<div class="listen-round">
+<p><strong class="round-lead">Round 1.</strong> At the helm. It was his second meeting at the Fed&#x27;s helm.</p>
+<p>Spell out. Warsh declined to spell out what would lead him to raise rates.</p>
+<p>Path forward. Traders had less clarity on the expected path forward.</p>
+<p>Weaker-than-expected. Meta gave a weaker-than-expected revenue forecast.</p>
+<p>Fare much better. Microsoft fared much better after reporting its quarterly results.</p>
+<p>Put the spotlight on. The silence put the spotlight on the earnings conference call.</p>
+<p>Hit a snag. Blanche&#x27;s nomination hit a snag in the Senate.</p>
+<p>Withhold support. Two senators are withholding their support for Blanche.</p>
+<p>Call off a meeting. Cornyn called off a meeting with Blanche.</p>
+<p>Make up ground. Codex is making up ground in the AI coding market.</p>
+</div>
+    </article>
+<script>
+  (function () {
+    var choices = [1, 3, 5, 10];
+    var n = Number(new URLSearchParams(location.search).get("repeat"));
+    var repeat = choices.indexOf(n) >= 0 ? n : 5;
+    var round = document.querySelector(".listen-round");
+    for (var r = 2; round && r <= repeat; r++) {
+      var copy = round.cloneNode(true);
+      copy.querySelector(".round-lead").textContent = "Round " + r + ".";
+      round.parentNode.appendChild(copy);
+    }
+  })();
+</script>
+  </main>
+</body>
+</html>

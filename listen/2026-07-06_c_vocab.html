@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vocabulary · CNBC News · July 6, 2026</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../listen.css" />
+</head>
+<body>
+  <main class="listen-page">
+    <a class="listen-back" href="../index.html">← Back</a>
+    <article class="listen-script">
+<h1>Vocabulary · CNBC News · July 6, 2026</h1>
+<div class="listen-round">
+<p><strong class="round-lead">Round 1.</strong> Coming off a winning week. Wall Street is coming off a winning week.</p>
+<p>Sat down with. Trump sat down with CNBC&#x27;s Joe Kernen.</p>
+<p>Ahead of. Trump spoke ahead of the nation&#x27;s 250th birthday.</p>
+<p>Align with. That range doesn&#x27;t align with the latest data.</p>
+<p>In the green. The three major indexes ended last week in the green.</p>
+<p>Parse for clues. Investors will parse the Fed&#x27;s minutes for clues.</p>
+<p>A surge in volumes. There has been a surge in volumes from May to June.</p>
+<p>Granted the right to appeal. Belgian authorities were granted the right to appeal.</p>
+<p>Opting to. Travelers are opting to jet off in cooler periods.</p>
+<p>In a bid to win over. Airlines changed playbooks in a bid to win over travelers.</p>
+</div>
+    </article>
+<script>
+  (function () {
+    var choices = [1, 3, 5, 10];
+    var n = Number(new URLSearchParams(location.search).get("repeat"));
+    var repeat = choices.indexOf(n) >= 0 ? n : 5;
+    var round = document.querySelector(".listen-round");
+    for (var r = 2; round && r <= repeat; r++) {
+      var copy = round.cloneNode(true);
+      copy.querySelector(".round-lead").textContent = "Round " + r + ".";
+      round.parentNode.appendChild(copy);
+    }
+  })();
+</script>
+  </main>
+</body>
+</html>

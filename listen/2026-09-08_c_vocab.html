@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vocabulary · CNBC News · September 8, 2026</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../listen.css" />
+</head>
+<body>
+  <main class="listen-page">
+    <a class="listen-back" href="../index.html">← Back</a>
+    <article class="listen-script">
+<h1>Vocabulary · CNBC News · September 8, 2026</h1>
+<div class="listen-round">
+<p><strong class="round-lead">Round 1.</strong> In effect. Canada&#x27;s reciprocal tariffs are now in effect.</p>
+<p>Make up for lost time. Wall Street is making up for lost time after Labor Day.</p>
+<p>Off to a rocky start. Stock futures are off to a rocky start this week.</p>
+<p>Turn one&#x27;s attention to. Investors are turning their attention to the latest inflation readings.</p>
+<p>Shell out. Travelers may be shelling out more than usual.</p>
+<p>Pull back. Value-minded vacationers haven&#x27;t appeared to be pulling back.</p>
+<p>Roll out. Tech companies rolled out AI model updates last week.</p>
+<p>Ramp up. Tech companies are ramping up their pace of innovation.</p>
+<p>Stay at the forefront of. Tech companies aim to stay at the forefront of AI.</p>
+<p>Up the ante. AI is upping the ante for security leaders.</p>
+</div>
+    </article>
+<script>
+  (function () {
+    var choices = [1, 3, 5, 10];
+    var n = Number(new URLSearchParams(location.search).get("repeat"));
+    var repeat = choices.indexOf(n) >= 0 ? n : 5;
+    var round = document.querySelector(".listen-round");
+    for (var r = 2; round && r <= repeat; r++) {
+      var copy = round.cloneNode(true);
+      copy.querySelector(".round-lead").textContent = "Round " + r + ".";
+      round.parentNode.appendChild(copy);
+    }
+  })();
+</script>
+  </main>
+</body>
+</html>

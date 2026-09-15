@@ -10,10 +10,9 @@
  * lean on that structure twice: to build a table of contents (from the `# `
  * headings) and to colour-code the impact sections.
  *
- * Narration is Safari's own "Listen to Page" on listen.html, linked per report.
+ * Narration is Safari's own "Listen to Page" on the report's static page in
+ * listen/, which `sync` builds so the text exists before the page loads.
  */
-
-import { listenHref } from "./listen-core.js";
 
 const DATA_BASE = "./summaries/";
 
@@ -154,7 +153,7 @@ function populateSelect() {
 
 async function show(filename) {
   state.current = filename;
-  listenLink.href = listenHref({ news: filename });
+  listenLink.href = `./listen/${filename.replace(/\.md$/, ".html")}`;
   listenLink.hidden = false;
   reportEl.replaceChildren(
     Object.assign(document.createElement("p"), {

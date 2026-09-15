@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vocabulary · CNBC News · July 14, 2026</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../listen.css" />
+</head>
+<body>
+  <main class="listen-page">
+    <a class="listen-back" href="../index.html">← Back</a>
+    <article class="listen-script">
+<h1>Vocabulary · CNBC News · July 14, 2026</h1>
+<div class="listen-round">
+<p><strong class="round-lead">Round 1.</strong> Get caught up. Here’s what you need to know to get caught up.</p>
+<p>Come off a losing day. The market is coming off a losing day.</p>
+<p>Put pressure on. Rising oil prices are putting pressure on stocks.</p>
+<p>Flare-up in tensions. Oil shipments continued despite the recent flare-up in tensions.</p>
+<p>Kick off earnings season. Major banks kicked off earnings season with strong results.</p>
+<p>Blowout results. Wall Street’s biggest banks reported blowout results.</p>
+<p>Strongest quarter to date. The CEO called it the bank’s strongest quarter to date.</p>
+<p>Have their eyes on. Traders have their eyes on the inflation report.</p>
+<p>Take the helm. Warsh took the Fed’s helm in May.</p>
+<p>Break out of stagnant growth. International expansion could help the company break out of stagnant growth.</p>
+</div>
+    </article>
+<script>
+  (function () {
+    var choices = [1, 3, 5, 10];
+    var n = Number(new URLSearchParams(location.search).get("repeat"));
+    var repeat = choices.indexOf(n) >= 0 ? n : 5;
+    var round = document.querySelector(".listen-round");
+    for (var r = 2; round && r <= repeat; r++) {
+      var copy = round.cloneNode(true);
+      copy.querySelector(".round-lead").textContent = "Round " + r + ".";
+      round.parentNode.appendChild(copy);
+    }
+  })();
+</script>
+  </main>
+</body>
+</html>

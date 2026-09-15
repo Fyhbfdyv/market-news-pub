@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vocabulary · CNBC News · May 22, 2026</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../listen.css" />
+</head>
+<body>
+  <main class="listen-page">
+    <a class="listen-back" href="../index.html">← Back</a>
+    <article class="listen-script">
+<h1>Vocabulary · CNBC News · May 22, 2026</h1>
+<div class="listen-round">
+<p><strong class="round-lead">Round 1.</strong> On track for. All three major indexes are on track for a positive week.</p>
+<p>Ink a deal. Spotify inked an AI deal with Universal Music.</p>
+<p>Blow out of the water. Jensen Huang&#x27;s AI estimates could blow Wall Street&#x27;s forecasts out of the water.</p>
+<p>Pedal to the metal. Stellantis went pedal to the metal with nearly $70 billion in investment.</p>
+<p>Hike a forecast. Workday hiked its margin forecast, citing strong AI demand.</p>
+<p>At odds. State and federal governments are at odds over who can regulate prediction markets.</p>
+<p>Rein in. Lawmakers are trying to rein in prediction markets.</p>
+<p>Soothe concerns. Blanche failed to soothe concerns within the president&#x27;s party.</p>
+<p>High-stakes. The regulation dispute led to a high-stakes battle in courtrooms.</p>
+<p>On pace to. Oura is on pace to break the five-million paid member mark this quarter.</p>
+</div>
+    </article>
+<script>
+  (function () {
+    var choices = [1, 3, 5, 10];
+    var n = Number(new URLSearchParams(location.search).get("repeat"));
+    var repeat = choices.indexOf(n) >= 0 ? n : 5;
+    var round = document.querySelector(".listen-round");
+    for (var r = 2; round && r <= repeat; r++) {
+      var copy = round.cloneNode(true);
+      copy.querySelector(".round-lead").textContent = "Round " + r + ".";
+      round.parentNode.appendChild(copy);
+    }
+  })();
+</script>
+  </main>
+</body>
+</html>

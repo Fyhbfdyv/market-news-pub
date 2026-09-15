@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vocabulary · Bloomberg Daybreak · May 18, 2026</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../listen.css" />
+</head>
+<body>
+  <main class="listen-page">
+    <a class="listen-back" href="../index.html">← Back</a>
+    <article class="listen-script">
+<h1>Vocabulary · Bloomberg Daybreak · May 18, 2026</h1>
+<div class="listen-round">
+<p><strong class="round-lead">Round 1.</strong> The clock is ticking. Trump warned Iran that the clock is ticking.</p>
+<p>Diplomatic breakthrough. People were hopeful there might be a diplomatic breakthrough after the summit.</p>
+<p>Come to the table. Trump wants Iran to come to the table and sign a peace deal.</p>
+<p>Far apart. The US and Iran remain far apart on a deal.</p>
+<p>Blink first. Which side is going to blink first and make concessions?</p>
+<p>Impasse. We are back to a situation of impasse.</p>
+<p>Front and center. The drone attack put the nuclear issue front and center.</p>
+<p>Ramp up. Governments will ramp up borrowing to cushion rising living costs.</p>
+<p>Lifeblood. The railroad is the lifeblood of Long Island.</p>
+<p>Shelter in place. Authorities ordered residents to shelter in place during the investigation.</p>
+</div>
+    </article>
+<script>
+  (function () {
+    var choices = [1, 3, 5, 10];
+    var n = Number(new URLSearchParams(location.search).get("repeat"));
+    var repeat = choices.indexOf(n) >= 0 ? n : 5;
+    var round = document.querySelector(".listen-round");
+    for (var r = 2; round && r <= repeat; r++) {
+      var copy = round.cloneNode(true);
+      copy.querySelector(".round-lead").textContent = "Round " + r + ".";
+      round.parentNode.appendChild(copy);
+    }
+  })();
+</script>
+  </main>
+</body>
+</html>

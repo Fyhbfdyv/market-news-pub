@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vocabulary · Bloomberg Daybreak · July 23, 2026</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../listen.css" />
+</head>
+<body>
+  <main class="listen-page">
+    <a class="listen-back" href="../index.html">← Back</a>
+    <article class="listen-script">
+<h1>Vocabulary · Bloomberg Daybreak · July 23, 2026</h1>
+<div class="listen-round">
+<p><strong class="round-lead">Round 1.</strong> Go back to the negotiating table. The president is not ready to go back to the negotiating table.</p>
+<p>Open a new front. The Houthis have opened a new front in the war.</p>
+<p>A key workaround. The Red Sea emerged as a key workaround for oil exports.</p>
+<p>Unite behind. The speaker united Republicans behind the bill.</p>
+<p>Make something a centerpiece. Party leaders plan to make the vote a centerpiece of their campaign.</p>
+<p>Be here to stay. The trade representative said tariffs are here to stay.</p>
+<p>Speak to the urgency of. The spending speaks to the urgency of obtaining AI chips.</p>
+<p>Make up for. Rising demand helped make up for a sluggish PC market.</p>
+<p>Be at odds over. City officials are at odds over the response to the outbreak.</p>
+<p>Allay concerns. Security guarantees could allay concerns about shipping risks.</p>
+</div>
+    </article>
+<script>
+  (function () {
+    var choices = [1, 3, 5, 10];
+    var n = Number(new URLSearchParams(location.search).get("repeat"));
+    var repeat = choices.indexOf(n) >= 0 ? n : 5;
+    var round = document.querySelector(".listen-round");
+    for (var r = 2; round && r <= repeat; r++) {
+      var copy = round.cloneNode(true);
+      copy.querySelector(".round-lead").textContent = "Round " + r + ".";
+      round.parentNode.appendChild(copy);
+    }
+  })();
+</script>
+  </main>
+</body>
+</html>

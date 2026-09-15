@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vocabulary · Bloomberg Daybreak · August 10, 2026</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../listen.css" />
+</head>
+<body>
+  <main class="listen-page">
+    <a class="listen-back" href="../index.html">← Back</a>
+    <article class="listen-script">
+<h1>Vocabulary · Bloomberg Daybreak · August 10, 2026</h1>
+<div class="listen-round">
+<p><strong class="round-lead">Round 1.</strong> Make amends for. The U.S. must make amends for its violations before negotiations resume.</p>
+<p>In the final stages. The talks are in the final stages despite some delays.</p>
+<p>A big ask. Protecting the entire country from an aerial attack is a big ask.</p>
+<p>In tandem with. The plan calls for disarmament in tandem with a gradual troop withdrawal.</p>
+<p>Hand over. Hamas would hand over its heavy weapons to a new administration.</p>
+<p>Wind down. Earnings season may be winding down, but spending remains in focus.</p>
+<p>Put something to work. The company is putting more of its cash pile to work.</p>
+<p>In light of. Apple is considering an overhaul in light of the industry&#x27;s transition.</p>
+<p>On the verge of. The two countries may be on the verge of resuming negotiations.</p>
+<p>Bear the brunt of. Gulf states initially bore the brunt of the attacks.</p>
+</div>
+    </article>
+<script>
+  (function () {
+    var choices = [1, 3, 5, 10];
+    var n = Number(new URLSearchParams(location.search).get("repeat"));
+    var repeat = choices.indexOf(n) >= 0 ? n : 5;
+    var round = document.querySelector(".listen-round");
+    for (var r = 2; round && r <= repeat; r++) {
+      var copy = round.cloneNode(true);
+      copy.querySelector(".round-lead").textContent = "Round " + r + ".";
+      round.parentNode.appendChild(copy);
+    }
+  })();
+</script>
+  </main>
+</body>
+</html>

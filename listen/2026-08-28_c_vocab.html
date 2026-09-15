@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vocabulary · CNBC News · August 28, 2026</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../listen.css" />
+</head>
+<body>
+  <main class="listen-page">
+    <a class="listen-back" href="../index.html">← Back</a>
+    <article class="listen-script">
+<h1>Vocabulary · CNBC News · August 28, 2026</h1>
+<div class="listen-round">
+<p><strong class="round-lead">Round 1.</strong> Follow suit. Economists aren&#x27;t sure if Warsh will follow suit.</p>
+<p>Be split on whether. Respondents were split on whether the chairman should offer his view.</p>
+<p>Go so far as. Schmid didn&#x27;t go so far as backing interest rate hikes.</p>
+<p>On track for. The three major averages are on track for winning weeks.</p>
+<p>Take over. Michael Francis will take over in November.</p>
+<p>At the helm. Barbeito has been at Old Navy&#x27;s helm since 2022.</p>
+<p>Stage a turnaround. The change marks Gap&#x27;s latest effort to stage a turnaround.</p>
+<p>Come in below. Revenue came in slightly below the Street&#x27;s forecast.</p>
+<p>Seek assurances. Anthropic sought assurances about how its models would be used.</p>
+<p>Put a spotlight on. Its wide reach has put a spotlight on industry consolidation.</p>
+</div>
+    </article>
+<script>
+  (function () {
+    var choices = [1, 3, 5, 10];
+    var n = Number(new URLSearchParams(location.search).get("repeat"));
+    var repeat = choices.indexOf(n) >= 0 ? n : 5;
+    var round = document.querySelector(".listen-round");
+    for (var r = 2; round && r <= repeat; r++) {
+      var copy = round.cloneNode(true);
+      copy.querySelector(".round-lead").textContent = "Round " + r + ".";
+      round.parentNode.appendChild(copy);
+    }
+  })();
+</script>
+  </main>
+</body>
+</html>

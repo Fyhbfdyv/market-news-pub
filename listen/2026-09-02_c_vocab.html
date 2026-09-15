@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vocabulary · CNBC News · September 2, 2026</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../listen.css" />
+</head>
+<body>
+  <main class="listen-page">
+    <a class="listen-back" href="../index.html">← Back</a>
+    <article class="listen-script">
+<h1>Vocabulary · CNBC News · September 2, 2026</h1>
+<div class="listen-round">
+<p><strong class="round-lead">Round 1.</strong> Embark on an AI pivot. GoPro is embarking on an artificial intelligence pivot.</p>
+<p>Prompt retaliatory attacks. The strikes prompted retaliatory attacks by Tehran.</p>
+<p>Play up. Bessent attempted to play up the bond market&#x27;s performance.</p>
+<p>Take center stage. Tech takes center stage at the G20 Innovation Ministerial.</p>
+<p>Add ideas to the mix. Canadian negotiators added crazy ideas to the mix.</p>
+<p>Fire back at. Carney fired back at the Trump administration.</p>
+<p>Blow past expectations. Dell blew past analyst expectations for the second quarter.</p>
+<p>Signal further runway. Dell&#x27;s post-earnings move could signal further runway for the stock.</p>
+<p>A string of acquisitions. The deal is its latest in a string of acquisitions.</p>
+<p>Purchase a controlling stake. Kroenke is purchasing a controlling stake in the Los Angeles Angels.</p>
+</div>
+    </article>
+<script>
+  (function () {
+    var choices = [1, 3, 5, 10];
+    var n = Number(new URLSearchParams(location.search).get("repeat"));
+    var repeat = choices.indexOf(n) >= 0 ? n : 5;
+    var round = document.querySelector(".listen-round");
+    for (var r = 2; round && r <= repeat; r++) {
+      var copy = round.cloneNode(true);
+      copy.querySelector(".round-lead").textContent = "Round " + r + ".";
+      round.parentNode.appendChild(copy);
+    }
+  })();
+</script>
+  </main>
+</body>
+</html>

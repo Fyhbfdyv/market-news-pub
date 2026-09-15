@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vocabulary · CNBC News · May 29, 2026</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../listen.css" />
+</head>
+<body>
+  <main class="listen-page">
+    <a class="listen-back" href="../index.html">← Back</a>
+    <article class="listen-script">
+<h1>Vocabulary · CNBC News · May 29, 2026</h1>
+<div class="listen-round">
+<p><strong class="round-lead">Round 1.</strong> Fill in for. I&#x27;m CJ, filling in for Alex this morning.</p>
+<p>On pace for. All three major averages are on pace for a positive week.</p>
+<p>Seal the deal. The U.S. and Iran have mostly agreed to the terms of a deal.</p>
+<p>Settle off one&#x27;s highs. Oil prices settled off their highs amid reports of a potential deal.</p>
+<p>At the pump. Drivers continued to search for cheaper prices at the pump.</p>
+<p>Pinch at. Inflation continues to pinch at consumers this spring.</p>
+<p>In line with. The 12-month readings were in line with expectations.</p>
+<p>Top expectations. Dell topped analysts&#x27; expectations on both lines.</p>
+<p>A slew of. Thursday&#x27;s slew of retail earnings saw mixed results.</p>
+<p>Wrap up. His company is wrapping up its best month in years.</p>
+</div>
+    </article>
+<script>
+  (function () {
+    var choices = [1, 3, 5, 10];
+    var n = Number(new URLSearchParams(location.search).get("repeat"));
+    var repeat = choices.indexOf(n) >= 0 ? n : 5;
+    var round = document.querySelector(".listen-round");
+    for (var r = 2; round && r <= repeat; r++) {
+      var copy = round.cloneNode(true);
+      copy.querySelector(".round-lead").textContent = "Round " + r + ".";
+      round.parentNode.appendChild(copy);
+    }
+  })();
+</script>
+  </main>
+</body>
+</html>

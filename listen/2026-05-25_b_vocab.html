@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vocabulary · Bloomberg Daybreak · May 25, 2026</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../listen.css" />
+</head>
+<body>
+  <main class="listen-page">
+    <a class="listen-back" href="../index.html">← Back</a>
+    <article class="listen-script">
+<h1>Vocabulary · Bloomberg Daybreak · May 25, 2026</h1>
+<div class="listen-round">
+<p><strong class="round-lead">Round 1.</strong> Kick off. We kick off the unofficial start of summer with record-high prices.</p>
+<p>Step into. The new chairman is stepping into a huge supply shock.</p>
+<p>Bleed over. There&#x27;s been bleed over into core rates from services and goods.</p>
+<p>Provide cover. Lower inflation could provide him the cover of not hiking rates.</p>
+<p>Off the table. If demand slows, rate increases are probably off the table.</p>
+<p>Sidelined. Higher uncertainty keeps the Fed sidelined for now.</p>
+<p>Pull on that lever. Costco probably won&#x27;t pull on that lever of raising membership prices right away.</p>
+<p>Weigh on. Higher gas prices are really weighing on consumer sentiment.</p>
+<p>Demand destruction. Five dollars a gallon is when higher prices lead to demand destruction.</p>
+<p>Ripple through. Higher gas prices are starting to ripple through to food and other products.</p>
+</div>
+    </article>
+<script>
+  (function () {
+    var choices = [1, 3, 5, 10];
+    var n = Number(new URLSearchParams(location.search).get("repeat"));
+    var repeat = choices.indexOf(n) >= 0 ? n : 5;
+    var round = document.querySelector(".listen-round");
+    for (var r = 2; round && r <= repeat; r++) {
+      var copy = round.cloneNode(true);
+      copy.querySelector(".round-lead").textContent = "Round " + r + ".";
+      round.parentNode.appendChild(copy);
+    }
+  })();
+</script>
+  </main>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vocabulary · CNBC News · June 10, 2026</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../listen.css" />
+</head>
+<body>
+  <main class="listen-page">
+    <a class="listen-back" href="../index.html">← Back</a>
+    <article class="listen-script">
+<h1>Vocabulary · CNBC News · June 10, 2026</h1>
+<div class="listen-round">
+<p><strong class="round-lead">Round 1.</strong> Keep an eye out for. Keep an eye out for the latest consumer inflation data at 8:30 a.m.</p>
+<p>Pay the price. Iran will have to pay the price after taking too long to negotiate a deal.</p>
+<p>Diverge from. Trump&#x27;s latest post diverged from other recent comments indicating the conflict could be near its end.</p>
+<p>Fare well. The investors didn&#x27;t fare nearly as well.</p>
+<p>Penny-stock territory. The stock could be delisted if it doesn&#x27;t exit penny-stock territory.</p>
+<p>Take-it-or-leave-it. SpaceX is offering a take-it-or-leave-it price instead of a range.</p>
+<p>Band together. More than 100 SpaceX employees banded together to have their wealth managed.</p>
+<p>Crack down on. Kalshi is trying to crack down on insider trading.</p>
+<p>Make good on. Anthropic is making good on its eventual goal to roll out powerful models at scale.</p>
+<p>Build buzz. The announcement helps build investor buzz ahead of a potential IPO.</p>
+</div>
+    </article>
+<script>
+  (function () {
+    var choices = [1, 3, 5, 10];
+    var n = Number(new URLSearchParams(location.search).get("repeat"));
+    var repeat = choices.indexOf(n) >= 0 ? n : 5;
+    var round = document.querySelector(".listen-round");
+    for (var r = 2; round && r <= repeat; r++) {
+      var copy = round.cloneNode(true);
+      copy.querySelector(".round-lead").textContent = "Round " + r + ".";
+      round.parentNode.appendChild(copy);
+    }
+  })();
+</script>
+  </main>
+</body>
+</html>

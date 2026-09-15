@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vocabulary · Bloomberg Daybreak · June 17, 2026</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../listen.css" />
+</head>
+<body>
+  <main class="listen-page">
+    <a class="listen-back" href="../index.html">← Back</a>
+    <article class="listen-script">
+<h1>Vocabulary · Bloomberg Daybreak · June 17, 2026</h1>
+<div class="listen-round">
+<p><strong class="round-lead">Round 1.</strong> Key takeaways. Correspondent Abeer Abu Omar has the key takeaways from the 14-point draft.</p>
+<p>Sticking points. Some of the most contentious sticking points include the unblocking of Iran&#x27;s frozen assets.</p>
+<p>In line for. Tehran could be in line for significant financial incentives.</p>
+<p>Accrue. Benefits would accrue over time based on Iran&#x27;s performance.</p>
+<p>A carrot more than a stick. The deal is viewed as a carrot more than a stick to get Iran to make concessions.</p>
+<p>Moratorium. Any finalized deal must include a moratorium on future uranium enrichment.</p>
+<p>Outspoken. Senator Graham has been very outspoken in pushing the president toward military action.</p>
+<p>By and large. Republicans, by and large, say they favor a diplomatic solution.</p>
+<p>Banking on. Republicans are banking on the US securing significant concessions from Iran.</p>
+<p>Ran away with. Robert White ran away with the nomination, winning 63.2% of the vote.</p>
+</div>
+    </article>
+<script>
+  (function () {
+    var choices = [1, 3, 5, 10];
+    var n = Number(new URLSearchParams(location.search).get("repeat"));
+    var repeat = choices.indexOf(n) >= 0 ? n : 5;
+    var round = document.querySelector(".listen-round");
+    for (var r = 2; round && r <= repeat; r++) {
+      var copy = round.cloneNode(true);
+      copy.querySelector(".round-lead").textContent = "Round " + r + ".";
+      round.parentNode.appendChild(copy);
+    }
+  })();
+</script>
+  </main>
+</body>
+</html>

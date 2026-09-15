@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vocabulary · CNBC News · June 16, 2026</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../listen.css" />
+</head>
+<body>
+  <main class="listen-page">
+    <a class="listen-back" href="../index.html">← Back</a>
+    <article class="listen-script">
+<h1>Vocabulary · CNBC News · June 16, 2026</h1>
+<div class="listen-round">
+<p><strong class="round-lead">Round 1.</strong> Near the flatline. Stock futures are near the flatline this morning.</p>
+<p>Urge caution. Some on Wall Street are urging caution about when the conflict would wind down.</p>
+<p>Wind down. Some are skeptical about when the conflict would actually wind down.</p>
+<p>Hold all the cards. He said the U.S. holds all the cards.</p>
+<p>Breathing room. Trump will likely give Warsh more breathing room than he gave his predecessor.</p>
+<p>Lose steam. SpaceX&#x27;s ascent didn&#x27;t lose any steam yesterday.</p>
+<p>Pare gains. Shares pared their gains after SpaceX announced the acquisition.</p>
+<p>Slated to. The cash-and-stock deal is slated to close in the first half of next year.</p>
+<p>Bolster. The acquisition should bolster its agentic AI platform.</p>
+<p>Scope of action. Trump&#x27;s trust in Warsh will provide him with some scope of action.</p>
+</div>
+    </article>
+<script>
+  (function () {
+    var choices = [1, 3, 5, 10];
+    var n = Number(new URLSearchParams(location.search).get("repeat"));
+    var repeat = choices.indexOf(n) >= 0 ? n : 5;
+    var round = document.querySelector(".listen-round");
+    for (var r = 2; round && r <= repeat; r++) {
+      var copy = round.cloneNode(true);
+      copy.querySelector(".round-lead").textContent = "Round " + r + ".";
+      round.parentNode.appendChild(copy);
+    }
+  })();
+</script>
+  </main>
+</body>
+</html>

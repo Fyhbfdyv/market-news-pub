@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vocabulary · Bloomberg Daybreak · September 11, 2026</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../listen.css" />
+</head>
+<body>
+  <main class="listen-page">
+    <a class="listen-back" href="../index.html">← Back</a>
+    <article class="listen-script">
+<h1>Vocabulary · Bloomberg Daybreak · September 11, 2026</h1>
+<div class="listen-round">
+<p><strong class="round-lead">Round 1.</strong> Find a way forward. It will be interesting to see if they can find a way forward.</p>
+<p>State of play. The current state of play is neither peace nor war.</p>
+<p>Turn around. The fiscal situation will be difficult to turn around.</p>
+<p>Pay off. Oracle&#x27;s investments in AI data centers are paying off.</p>
+<p>Across the board. The numbers across the board were better than feared.</p>
+<p>Put to rest. Some of those worries might be temporarily put to rest.</p>
+<p>On the flip side. On the flip side, Adobe shares are down 3% this morning.</p>
+<p>Ramp up. Microsoft plans to ramp up its computing power.</p>
+<p>On the heels of. This outbreak comes on the heels of cases in Manhattan over the summer.</p>
+<p>A shot in the arm. They hope the proposal will give their campaign a shot in the arm.</p>
+</div>
+    </article>
+<script>
+  (function () {
+    var choices = [1, 3, 5, 10];
+    var n = Number(new URLSearchParams(location.search).get("repeat"));
+    var repeat = choices.indexOf(n) >= 0 ? n : 5;
+    var round = document.querySelector(".listen-round");
+    for (var r = 2; round && r <= repeat; r++) {
+      var copy = round.cloneNode(true);
+      copy.querySelector(".round-lead").textContent = "Round " + r + ".";
+      round.parentNode.appendChild(copy);
+    }
+  })();
+</script>
+  </main>
+</body>
+</html>

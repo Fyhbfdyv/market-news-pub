@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vocabulary · CNBC News · July 13, 2026</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../listen.css" />
+</head>
+<body>
+  <main class="listen-page">
+    <a class="listen-back" href="../index.html">← Back</a>
+    <article class="listen-script">
+<h1>Vocabulary · CNBC News · July 13, 2026</h1>
+<div class="listen-round">
+<p><strong class="round-lead">Round 1.</strong> Feel inflation’s pinch. Even if you stayed home, you likely still felt inflation’s pinch.</p>
+<p>Come off a winning week. The S&amp;P 500 is coming off a winning week.</p>
+<p>Until further notice. Iran said it had closed the strait until further notice.</p>
+<p>Snap a positive streak. The Dow snapped its longest weekly positive streak since 2024.</p>
+<p>Work across the aisle. Graham was known to work across the aisle on policy issues.</p>
+<p>Float someone’s name. Several names are being floated to fill Graham’s seat.</p>
+<p>A shocking twist. The lawsuit was a shocking twist given the firms’ partnership.</p>
+<p>Ink a partnership. The two firms inked a partnership in 2024.</p>
+<p>Land on one’s feet. It hasn’t been easy for some workers to land on their feet.</p>
+<p>For the fourth month in a row. AI was the primary reason for cuts for the fourth month in a row.</p>
+</div>
+    </article>
+<script>
+  (function () {
+    var choices = [1, 3, 5, 10];
+    var n = Number(new URLSearchParams(location.search).get("repeat"));
+    var repeat = choices.indexOf(n) >= 0 ? n : 5;
+    var round = document.querySelector(".listen-round");
+    for (var r = 2; round && r <= repeat; r++) {
+      var copy = round.cloneNode(true);
+      copy.querySelector(".round-lead").textContent = "Round " + r + ".";
+      round.parentNode.appendChild(copy);
+    }
+  })();
+</script>
+  </main>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vocabulary · CNBC News · May 20, 2026</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../listen.css" />
+</head>
+<body>
+  <main class="listen-page">
+    <a class="listen-back" href="../index.html">← Back</a>
+    <article class="listen-script">
+<h1>Vocabulary · CNBC News · May 20, 2026</h1>
+<div class="listen-round">
+<p><strong class="round-lead">Round 1.</strong> Homed in on. Investor attention homed in on interest rates yesterday.</p>
+<p>On the horizon. A rate hike could be on the horizon.</p>
+<p>Spill over into. Rising Treasury yields spilled over into the housing market.</p>
+<p>Beat expectations. Target beat Wall Street&#x27;s top- and bottom-line expectations for the first quarter.</p>
+<p>Lean in. Guests are responding in areas where we are leaning in and driving change.</p>
+<p>Roll out. Google is rolling out a new version of Gemini called 3.5 Flash.</p>
+<p>Grapple with. Stellantis has had to grapple with dwindling market share.</p>
+<p>Lay out. Filosa and his team will lay out how they will cut costs and return to profitability.</p>
+<p>Win back. Target attempts to win back shoppers and reverse a sales slump.</p>
+<p>Fire off. Job seekers are quickly firing off applications to open listings.</p>
+</div>
+    </article>
+<script>
+  (function () {
+    var choices = [1, 3, 5, 10];
+    var n = Number(new URLSearchParams(location.search).get("repeat"));
+    var repeat = choices.indexOf(n) >= 0 ? n : 5;
+    var round = document.querySelector(".listen-round");
+    for (var r = 2; round && r <= repeat; r++) {
+      var copy = round.cloneNode(true);
+      copy.querySelector(".round-lead").textContent = "Round " + r + ".";
+      round.parentNode.appendChild(copy);
+    }
+  })();
+</script>
+  </main>
+</body>
+</html>
