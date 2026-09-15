@@ -11,7 +11,7 @@
  * headings) and to colour-code the impact sections.
  */
 
-"use strict";
+import { speaker, speechSupported } from "./voice-prefs.js";
 
 const DATA_BASE = "./summaries/";
 
@@ -87,14 +87,14 @@ function renderReport(markdown, container) {
 // Text-to-speech: read a theme aloud with the browser's Web Speech API
 // ---------------------------------------------------------------------------
 
-// `speechSynthesis` is built into the browser, so there's no library to load.
-// We keep a tiny bit of module state: which button is currently "playing", so
-// we can restore its label and never let two themes talk over each other.
+// All speaking goes through the shared speaker (voice-prefs.js). We keep a
+// tiny bit of module state: which button is currently "playing", so we can
+// restore its label and never let two themes talk over each other.
 const SPEAK_IDLE = "🔊 Listen";
 const SPEAK_PLAYING = "⏹ Stop";
 
 const speech = {
-  supported: "speechSynthesis" in window,
+  supported: speechSupported,
   activeButton: null,
 };
 
@@ -108,40 +108,27 @@ function resetSpeechButton() {
 
 /** Stop any narration in progress (used when switching reports). */
 function stopSpeech() {
-  if (speech.supported) speechSynthesis.cancel();
+  speaker.stop();
   resetSpeechButton();
 }
 
 /**
  * Toggle narration for one theme.
  *
- * If `button` is already the one playing, we stop. Otherwise we cancel whatever
- * was playing and start this text. `cancel()` is the documented way to stop the
- * queue before speaking something new.
+ * If `button` is already the one playing, we stop. Otherwise the shared
+ * speaker replaces whatever was playing with this text.
  */
-function toggleSpeech(button, text) {
+async function toggleSpeech(button, text) {
   const wasActive = speech.activeButton === button;
-  stopSpeech(); // cancels current narration and resets the old button
+  stopSpeech(); // stops current narration and resets the old button
   if (wasActive) return; // a second click on the same button = stop
-
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = "en-US";
-  utterance.rate = 1;
-  // Apply the user's chosen English voice from the shared ⚙ settings panel.
-  const voice = window.VoicePrefs ? window.VoicePrefs.voiceFor("en") : null;
-  if (voice) utterance.voice = voice;
-  // Guard against the *previous* utterance's end/error event resetting the
-  // button we just switched to: only reset if this button is still active.
-  const finish = () => {
-    if (speech.activeButton === button) resetSpeechButton();
-  };
-  utterance.onend = finish;
-  utterance.onerror = finish;
 
   speech.activeButton = button;
   button.textContent = SPEAK_PLAYING;
   button.classList.add("speaking");
-  speechSynthesis.speak(utterance);
+  await speaker.speak(text, { lang: "en-US" });
+  // A newer click may have switched buttons meanwhile: only reset our own.
+  if (speech.activeButton === button) resetSpeechButton();
 }
 
 /**

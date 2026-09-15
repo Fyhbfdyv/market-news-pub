@@ -54,9 +54,7 @@
   <!-- The SDK loads before app.js imports the shared session and study log. -->
   <script src="./supabase.min.js" defer></script>
 
-  <!-- Shared voice settings (injects the ⚙ panel); load before app.js so
-       Speech.voiceFor can read the user's choice. -->
-  <script src="./voice-prefs.js" defer></script>
+  <!-- app.js imports voice-prefs.js (⚙ panel + shared speaker). -->
   <script type="module" src="./app.js"></script>
 </body>
 </html>

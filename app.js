@@ -17,6 +17,7 @@ import StudyLog from "./study-log.js";
 import { currentUser, onAuthChange } from "./sb-client.js";
 import { favorites, favoriteControl, manageFavorites } from "./favorites.js";
 import { parseVocab, termPattern, eligibleItems, answerChoices } from "./vocab-core.js";
+import { speaker } from "./voice-prefs.js";
 
 const DATA_BASE = "./summaries/";
 
@@ -95,29 +96,10 @@ const Speech = {
   cancelled: false,
   runId: 0,
 
-  /** Pick the best available voice for a BCP-47 language prefix. */
-  voiceFor(langPrefix) {
-    // Delegate to the shared VoicePrefs store so the voice chosen in the ⚙
-    // settings panel applies here. Fall back to the original "first matching
-    // lang" behaviour if voice-prefs.js failed to load (defensive).
-    if (window.VoicePrefs) return window.VoicePrefs.voiceFor(langPrefix);
-    const voices = speechSynthesis.getVoices();
-    return voices.find((v) => v.lang.toLowerCase().startsWith(langPrefix)) || null;
-  },
-
-  /** Speak `text` and resolve when finished (or on cancel/error). */
-  speak(text, lang, rate = 1) {
-    return new Promise((resolve) => {
-      if (Speech.cancelled || !text) return resolve();
-      const utter = new SpeechSynthesisUtterance(text);
-      utter.lang = lang;
-      utter.rate = rate;
-      const voice = Speech.voiceFor(lang.slice(0, 2));
-      if (voice) utter.voice = voice;
-      utter.onend = resolve;
-      utter.onerror = resolve;
-      speechSynthesis.speak(utter);
-    });
+  /** Speak `text` with the shared speaker; resolves when finished or stopped. */
+  async speak(text, lang, rate = 1) {
+    if (Speech.cancelled) return;
+    await speaker.speak(text, { lang, rate });
   },
 
   /** Non-blocking pause that also aborts early if cancelled. */
@@ -135,7 +117,7 @@ const Speech = {
   stop() {
     Speech.runId++;
     Speech.cancelled = true;
-    speechSynthesis.cancel();
+    speaker.stop();
     WakeLock.release(); // audio over → let the screen sleep again
   },
 
@@ -145,12 +127,6 @@ const Speech = {
     WakeLock.acquire(); // requested from the Play click → a valid user gesture
   },
 };
-
-// Some browsers load voices asynchronously; nudge them to populate.
-if ("speechSynthesis" in window) {
-  speechSynthesis.getVoices();
-  speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
-}
 
 // ---------------------------------------------------------------------------
 // Small DOM helpers — keep the mode code declarative and readable
